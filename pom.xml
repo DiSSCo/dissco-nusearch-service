@@ -25,6 +25,7 @@
     <gbif-common-ws.version>1.27-SNAPSHOT</gbif-common-ws.version>
     <lucene.version>9.9.1</lucene.version>
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
+    <sonar.organization>dissco</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.coverage.jacoco.xmlReportPaths>../app-it/target/site/jacoco-aggregate/jacoco.xml
     </sonar.coverage.jacoco.xmlReportPaths>
