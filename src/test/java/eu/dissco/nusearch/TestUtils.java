@@ -4,15 +4,32 @@ import static org.gbif.api.model.checklistbank.NameUsageMatch.MatchType.EXACT;
 import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
 import static org.gbif.api.vocabulary.TaxonomicStatus.SYNONYM;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.nusearch.domain.ColDpClassification;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.domain.ColDpRankedName;
 import eu.dissco.nusearch.domain.ColNameUsageMatch2;
 import eu.dissco.nusearch.domain.Diagnostics;
+import eu.dissco.nusearch.domain.DigitalMediaObjectEventWithoutDoi;
+import eu.dissco.nusearch.domain.DigitalMediaObjectWithoutDoi;
+import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
+import eu.dissco.nusearch.domain.DigitalSpecimenWrapper;
+import eu.dissco.nusearch.schema.DigitalEntity;
+import eu.dissco.nusearch.schema.DigitalSpecimen;
+import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
+import eu.dissco.nusearch.schema.Identifications;
+import eu.dissco.nusearch.schema.TaxonIdentification;
 import java.util.List;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 
 public class TestUtils {
+
+  public static final ObjectMapper MAPPER = new ObjectMapper();
+
+  public static String INSTITUTION_ID = "https://ror.org/02y22ws83";
+  public static String NORMALISED_PHYSICAL_SPECIMEN_ID = "http://coldb.mnhn.fr/catalognumber/mnhn/ec/ec10867";
+
 
   public static ColDpNameUsageMatch givenColDpNameUsageMatch() {
     ColDpNameUsageMatch colDpNameUsageMatch = new ColDpNameUsageMatch();
@@ -258,6 +275,84 @@ public class TestUtils {
     name.setLabelHtml("<i>Aa brevis</i> Schltr.");
     name.setStatus(SYNONYM);
     return name;
+  }
+
+  public static ColNameUsageMatch2 givenColDpNameUsageMatch2() {
+    var colNameUsageMatch2 = new ColNameUsageMatch2();
+    colNameUsageMatch2.setSynonym(true);
+    colNameUsageMatch2.setUsage(givenColDpRankedName("7Q8L8", "Aa brevis", "Schltr.", "SPECIES",
+        false, "Aa brevis Schltr.", "<i>Aa brevis</i> Schltr.", SYNONYM));
+    colNameUsageMatch2.setAcceptedUsage(givenColDpRankedName("73SWK", "Myrosmodes brevis",
+        "(Schltr.) Garay", "SPECIES", false, "Myrosmodes brevis (Schltr.) Garay",
+        "<i>Myrosmodes brevis</i> (Schltr.) Garay", ACCEPTED));
+    colNameUsageMatch2.setNomenclature(null);
+    colNameUsageMatch2.setClassification(givenRankedNameClassification());
+    colNameUsageMatch2.setDiagnostics(givenDiagnostics());
+    return colNameUsageMatch2;
+  }
+
+  private static List<ColDpRankedName> givenRankedNameClassification() {
+    return List.of(
+        givenColDpRankedName("P", "Plantae", null, "kingdom", false, "Plantae", "Plantae",
+            ACCEPTED),
+        givenColDpRankedName("TP", "Tracheophyta", null, "phylum", false, "Tracheophyta", "Tracheophyta",
+            ACCEPTED),
+        givenColDpRankedName("L2L", "Liliopsida", null, "class", false, "Liliopsida", "Liliopsida",
+            ACCEPTED),
+        givenColDpRankedName("SP", "Asparagales", null, "order", false, "Asparagales", "Asparagales", ACCEPTED),
+        givenColDpRankedName("DPL", "Orchidaceae", null, "family", false, "Orchidaceae", "Orchidaceae", ACCEPTED),
+        givenColDpRankedName("8VZKC", "Myrosmodes", "Rchb.f.", "genus", false, "Myrosmodes Rchb.f.",
+            "<i>Myrosmodes</i> Rchb.f.", ACCEPTED),
+        givenColDpRankedName("5T6MX", "Biota", null, "unranked", false, "Biota", "<i>Biota</i>",
+            ACCEPTED)
+    );
+  }
+
+  private static ColDpRankedName givenColDpRankedName(String colId, String scientificName,
+      String authorship, String rank, boolean extinct, String label, String labelHtml,
+      TaxonomicStatus status) {
+    var colDpRankedName = new ColDpRankedName();
+    colDpRankedName.setColId(colId);
+    colDpRankedName.setScientificName(scientificName);
+    colDpRankedName.setAuthorship(authorship);
+    colDpRankedName.setRank(rank);
+    colDpRankedName.setExtinct(extinct);
+    colDpRankedName.setLabel(label);
+    colDpRankedName.setLabelHtml(labelHtml);
+    colDpRankedName.setStatus(status);
+    return colDpRankedName;
+  }
+
+  public static DigitalSpecimenEvent givenDigitalSpecimenEvent() {
+    return givenDigitalSpecimenEvent(givenDigitalSpecimen());
+  }
+  public static DigitalSpecimenEvent givenDigitalSpecimenEvent(DigitalSpecimen digitalSpecimen) {
+    return new DigitalSpecimenEvent(List.of("AAS"),
+        new DigitalSpecimenWrapper(NORMALISED_PHYSICAL_SPECIMEN_ID,
+            "https://doi.org/21.T11148/894b1e6cad57e921764e", digitalSpecimen,
+            MAPPER.createObjectNode()),
+        List.of(new DigitalMediaObjectEventWithoutDoi(List.of(),
+            new DigitalMediaObjectWithoutDoi("https://doi.org/21.T11148/bbad8c4e101e8af01115",
+                NORMALISED_PHYSICAL_SPECIMEN_ID, givenDigitalMediaObjects(), null))));
+  }
+
+  private static DigitalSpecimen givenDigitalSpecimen() {
+    return new DigitalSpecimen()
+        .withOdsNormalisedPhysicalSpecimenId(NORMALISED_PHYSICAL_SPECIMEN_ID)
+        .withDwcInstitutionId(INSTITUTION_ID)
+        .withDwcBasisOfRecord("PreservedSpecimen")
+        .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
+        .withOdsSpecimenName("Aa brevis")
+        .withDwcIdentification(List.of(
+            new Identifications().withTaxonIdentifications(
+                List.of(new TaxonIdentification().withDwcScientificName("Aa brevis")
+                    .withDwcOrder("Asparagales"))
+            )
+        ));
+  }
+
+  private static DigitalEntity givenDigitalMediaObjects() {
+    return new DigitalEntity().withAcAccessUri("https://accessuri.eu/image_1");
   }
 
 }

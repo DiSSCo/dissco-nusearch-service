@@ -17,6 +17,7 @@ package eu.dissco.nusearch.domain;
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub-ws/src/main/java/org/gbif/checklistbank/ws/nub/Classification.java
 
 import javax.annotation.Nullable;
+import lombok.EqualsAndHashCode;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
@@ -24,6 +25,7 @@ import org.gbif.api.vocabulary.Rank;
 /**
  *
  */
+@EqualsAndHashCode
 public class Classification implements LinneanClassification {
   private String kingdom;
   private String phylum;

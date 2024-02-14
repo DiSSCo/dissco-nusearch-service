@@ -1,5 +1,6 @@
 package eu.dissco.nusearch.service;
 
+import static eu.dissco.nusearch.TestUtils.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
@@ -30,7 +31,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 class ColDpDownloadingServiceTest {
 
   private static MockWebServer mockHandleServer;
-  private final ObjectMapper mapper = new ObjectMapper();
+
   @Mock
   private IndexingProperties properties;
   private ColDpDownloadingService service;
@@ -50,7 +51,7 @@ class ColDpDownloadingServiceTest {
   void setup() {
     WebClient webClient = WebClient.create(
         String.format("http://%s:%s", mockHandleServer.getHostName(), mockHandleServer.getPort()));
-    service = new ColDpDownloadingService(mapper, webClient, properties);
+    service = new ColDpDownloadingService(MAPPER, webClient, properties);
   }
 
   @AfterEach
@@ -71,7 +72,7 @@ class ColDpDownloadingServiceTest {
         .setBody("\"6877d4ef-cc87-42f0-b922-f54133185840\""));
     mockHandleServer.enqueue(new MockResponse()
         .setResponseCode(HttpStatus.OK.value())
-        .setBody(mapper.writeValueAsString(responseBody))
+        .setBody(MAPPER.writeValueAsString(responseBody))
         .addHeader("Content-Type", "application/json"));
     mockHandleServer.enqueue(new MockResponse()
         .setResponseCode(HttpStatus.OK.value()));
@@ -119,7 +120,7 @@ class ColDpDownloadingServiceTest {
   }
 
   private JsonNode givenDownloadResponseBody() {
-    return mapper.createObjectNode().put("download",
+    return MAPPER.createObjectNode().put("download",
         String.format("http://%s:%s/%s", mockHandleServer.getHostName(), mockHandleServer.getPort(),
             "job/68/6877d4ef-cc87-42f0-b922-f54133185840.zip"));
   }

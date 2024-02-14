@@ -4,6 +4,7 @@ import eu.dissco.nusearch.component.ScientificNameAnalyzer;
 import eu.dissco.nusearch.property.IndexingProperties;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.concurrent.Executors;
 import lombok.AllArgsConstructor;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -32,6 +33,6 @@ public class LuceneConfiguration {
   public IndexSearcher configureIndexSearcher() throws IOException {
     var indexDirectory = FSDirectory.open(Paths.get(properties.getIndexLocation()));
     var indexReader = DirectoryReader.open(indexDirectory);
-    return new IndexSearcher(indexReader);
+    return new IndexSearcher(indexReader, Executors.newVirtualThreadPerTaskExecutor());
   }
 }
