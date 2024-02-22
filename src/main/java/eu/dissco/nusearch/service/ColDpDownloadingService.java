@@ -149,7 +149,6 @@ public class ColDpDownloadingService {
   private JsonNode buildRequestBody() {
     var json = mapper.createObjectNode();
     json.put("format", "coldp");
-    json.put("extended", true);
     json.put("synonyms", true);
     json.put("extinct", true);
     return json;

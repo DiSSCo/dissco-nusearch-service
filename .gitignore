@@ -5,3 +5,5 @@ target/
 index-files
 
 *.iml
+
+.env
