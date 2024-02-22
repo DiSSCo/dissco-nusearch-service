@@ -23,7 +23,9 @@
     <gbif-parsers.version>0.67</gbif-parsers.version>
     <gbif-name-parser-v1.version>3.10.2-SNAPSHOT</gbif-name-parser-v1.version>
     <gbif-common-ws.version>1.27-SNAPSHOT</gbif-common-ws.version>
+    <spring-security-core.version>6.2.2</spring-security-core.version>
     <lucene.version>9.9.1</lucene.version>
+    <commons-compress.version>1.26.0</commons-compress.version>
     <swagger-annotations.version>2.2.20</swagger-annotations.version>
     <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
@@ -142,6 +144,19 @@
       <artifactId>swagger-annotations</artifactId>
       <version>${swagger-annotations.version}</version>
     </dependency>
+    <!-- Mitigating CVE-2024-25710 and CVE-2024-26308 from the gbif-commons -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>${commons-compress.version}</version>
+    </dependency>
+    <!-- Mitigating CVE-2024-22234 from the gbif-common-ws -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+      <version>${spring-security-core.version}</version>
+    </dependency>
+
 
 
     <dependency>
