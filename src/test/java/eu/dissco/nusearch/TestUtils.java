@@ -10,11 +10,8 @@ import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.domain.ColDpRankedName;
 import eu.dissco.nusearch.domain.ColNameUsageMatch2;
 import eu.dissco.nusearch.domain.Diagnostics;
-import eu.dissco.nusearch.domain.DigitalMediaObjectEventWithoutDoi;
-import eu.dissco.nusearch.domain.DigitalMediaObjectWithoutDoi;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.domain.DigitalSpecimenWrapper;
-import eu.dissco.nusearch.schema.DigitalEntity;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
 import eu.dissco.nusearch.schema.Identifications;
@@ -331,9 +328,7 @@ public class TestUtils {
         new DigitalSpecimenWrapper(NORMALISED_PHYSICAL_SPECIMEN_ID,
             "https://doi.org/21.T11148/894b1e6cad57e921764e", digitalSpecimen,
             MAPPER.createObjectNode()),
-        List.of(new DigitalMediaObjectEventWithoutDoi(List.of(),
-            new DigitalMediaObjectWithoutDoi("https://doi.org/21.T11148/bbad8c4e101e8af01115",
-                NORMALISED_PHYSICAL_SPECIMEN_ID, givenDigitalMediaObjects(), null))));
+        List.of(new ObjectMapper().createObjectNode()));
   }
 
   private static DigitalSpecimen givenDigitalSpecimen() {
@@ -349,10 +344,6 @@ public class TestUtils {
                     .withDwcOrder("Asparagales"))
             )
         ));
-  }
-
-  private static DigitalEntity givenDigitalMediaObjects() {
-    return new DigitalEntity().withAcAccessUri("https://accessuri.eu/image_1");
   }
 
 }

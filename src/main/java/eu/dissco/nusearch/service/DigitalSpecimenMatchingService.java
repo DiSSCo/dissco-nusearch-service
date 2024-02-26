@@ -85,6 +85,44 @@ public class DigitalSpecimenMatchingService {
     }
   }
 
+  private static Identifications retrieveAcceptedIdentification(
+      eu.dissco.nusearch.schema.DigitalSpecimen ds) {
+    if (ds.getDwcIdentification() != null && !ds.getDwcIdentification().isEmpty()) {
+      if (ds.getDwcIdentification().size() == 1) {
+        return ds.getDwcIdentification().getFirst();
+      }
+      for (eu.dissco.nusearch.schema.Identifications identification : ds.getDwcIdentification()) {
+        if (Boolean.TRUE.equals(identification.getDwcIdentificationVerificationStatus())) {
+          return identification;
+        }
+      }
+    }
+    return null;
+  }
+
+  private static void setUpdatedSpecimenName(DigitalSpecimenEvent event) {
+    var acceptedIdentification = retrieveAcceptedIdentification(
+        event.digitalSpecimenWrapper().attributes());
+    if (acceptedIdentification != null && acceptedIdentification.getTaxonIdentifications() != null
+        && !acceptedIdentification.getTaxonIdentifications().isEmpty()) {
+      event.digitalSpecimenWrapper().attributes().setOdsSpecimenName(
+          acceptedIdentification.getTaxonIdentifications().getFirst().getDwcScientificName());
+    }
+  }
+
+  private static void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
+      DigitalSpecimenEvent event) {
+    event.digitalSpecimenWrapper().attributes().getEntityRelationships()
+        .add(new eu.dissco.nusearch.schema.EntityRelationships()
+            .withEntityRelationshipDate(Date.from(Instant.now()))
+            .withEntityRelationshipType("hasColId")
+            .withEntityRelationshipCreatorName("dissco-nusearch-service")
+            .withEntityRelationshipCreatorId("https://hdl.handle.net/TEST/123-123-123")
+            .withObjectEntityIri(
+                "https://www.catalogueoflife.org/data/taxon/" + taxonMatchResult.getUsage()
+                    .getColId()));
+  }
+
   private void setTaxonIdentificationValues(
       eu.dissco.nusearch.schema.TaxonIdentification taxonIdentification,
       ColNameUsageMatch2 v2result, String genericName) {
@@ -148,7 +186,7 @@ public class DigitalSpecimenMatchingService {
     if (acceptedIdentification != null && acceptedIdentification.getTaxonIdentifications() != null
         && !acceptedIdentification.getTaxonIdentifications().isEmpty()) {
       ds.setOdsTopicDiscipline(getDiscipline(basisOfRecord,
-          acceptedIdentification.getTaxonIdentifications().get(0).getDwcKingdom()));
+          acceptedIdentification.getTaxonIdentifications().getFirst().getDwcKingdom()));
     } else {
       ds.setOdsTopicDiscipline(getDiscipline(basisOfRecord, null));
     }
@@ -185,45 +223,6 @@ public class DigitalSpecimenMatchingService {
     } else {
       return OdsTopicDiscipline.UNCLASSIFIED;
     }
-  }
-
-  private void setUpdatedSpecimenName(DigitalSpecimenEvent event) {
-    var acceptedIdentification = retrieveAcceptedIdentification(
-        event.digitalSpecimenWrapper().attributes());
-    if (acceptedIdentification != null && acceptedIdentification.getTaxonIdentifications() != null
-        && !acceptedIdentification.getTaxonIdentifications().isEmpty()) {
-      event.digitalSpecimenWrapper().attributes().setOdsSpecimenName(
-          acceptedIdentification.getTaxonIdentifications().get(0).getDwcScientificName());
-    }
-  }
-
-  private Identifications retrieveAcceptedIdentification(
-      eu.dissco.nusearch.schema.DigitalSpecimen ds) {
-    if (ds.getDwcIdentification() != null && !ds.getDwcIdentification().isEmpty()) {
-      if (ds.getDwcIdentification().size() == 1) {
-        return ds.getDwcIdentification().get(0);
-      }
-      for (eu.dissco.nusearch.schema.Identifications identification : ds.getDwcIdentification()) {
-        if (Boolean.TRUE.equals(identification.getDwcIdentificationVerificationStatus())) {
-          return identification;
-        }
-      }
-    }
-    return null;
-  }
-
-
-  private void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
-      DigitalSpecimenEvent event) {
-    event.digitalSpecimenWrapper().attributes().getEntityRelationships()
-        .add(new eu.dissco.nusearch.schema.EntityRelationships()
-            .withEntityRelationshipDate(Date.from(Instant.now()))
-            .withEntityRelationshipType("hasColId")
-            .withEntityRelationshipCreatorName("dissco-nusearch-service")
-            .withEntityRelationshipCreatorId("https://hdl.handle.net/TEST/123-123-123")
-            .withObjectEntityIri(
-                "https://www.catalogueoflife.org/data/taxon/" + taxonMatchResult.getUsage()
-                    .getColId()));
   }
 
   private List<ColNameUsageMatch2> handleIdentification(Identifications identification) {
