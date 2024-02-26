@@ -90,6 +90,11 @@ DiSSCo will provide container images for the application through our public imag
 The application can be run with the following command:
 ```docker run -p 8080:8080 public.ecr.aws/dissco/name-usage-searcher:latest```
 
+## Docker-Compose
+In addition to running the application through a container image, it is also possible to run the application through docker-compose.
+An example docker-compose file has been added to the repository.
+The command `docker-compose up` will start the application and expose it on port 8080.
+
 ### IDE
 The application can be run through a Java Integrated Development Environment (IDE) such as IntelliJ.
 The environmental variables can be set in the application.properties file.
