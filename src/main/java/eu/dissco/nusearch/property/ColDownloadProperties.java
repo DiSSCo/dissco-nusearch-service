@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 
 @Data
 @Validated
-@ConfigurationProperties(prefix = "col-properties")
+@ConfigurationProperties(prefix = "col")
 public class ColDownloadProperties {
 
   private boolean synonyms = true;
