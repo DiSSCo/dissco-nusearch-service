@@ -16,12 +16,15 @@ package eu.dissco.nusearch.service;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub-ws/src/main/java/org/gbif/checklistbank/ws/nub/ClassificationProvider.java
 
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
 import static org.gbif.ws.util.CommonWsUtils.getFirst;
 
 import eu.dissco.nusearch.domain.Classification;
 import java.util.Map;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.ws.server.provider.ContextProvider;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -32,6 +35,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 /**
  * Provider class that extracts LinneanClassification instances from the query parameters.
  */
+@Profile({STANDALONE, S3_RESOLVER})
 public class ClassificationProvider
     implements HandlerMethodArgumentResolver, ContextProvider<LinneanClassification> {
 

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.dissco.nusearch.domain.Classification;
-import eu.dissco.nusearch.utils.NameNRank;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
 import org.junit.jupiter.api.Test;

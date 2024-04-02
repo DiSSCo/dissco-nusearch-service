@@ -15,7 +15,6 @@ package eu.dissco.nusearch.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.dissco.nusearch.utils.DistanceUtils;
 import org.junit.jupiter.api.Test;
 
 class DistanceUtilsTest {

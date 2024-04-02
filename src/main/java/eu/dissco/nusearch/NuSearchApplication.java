@@ -12,7 +12,10 @@ import org.springframework.kafka.annotation.EnableKafka;
 public class NuSearchApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(NuSearchApplication.class, args);
+    var context = SpringApplication.run(NuSearchApplication.class, args);
+    if (context.getEnvironment().matchesProfiles(Profiles.S3_INDEXER)) {
+      context.close();
+    }
   }
 
 }

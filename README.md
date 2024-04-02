@@ -61,6 +61,19 @@ This endpoint has both an option for single requests (`match`), as well as batch
 In addition to the name resolution service there is also an auto-complete endpoint (`auto-complete`).
 This does a prefix search on the index and searches for records which start with the provided name.
 
+## Profiles
+This application uses Spring profiles as feature toggles.
+Certain functionality can be enabled or disabled by setting the correct profile.
+### Standalone
+In this mode the application is compeletly standalone and does not require any external services.
+It will download the COL dataset and index it locally.
+After indexing it will expose the index through an API.
+### S3 Indexer
+The S3 Indexer will run only the downloading and indexing part of the application.
+After it has created a lucene index it will upload the index to an S3 bucket (`col-indices`).
+The Lucene files are prefixed with the COL dataset identifier.
+### S3 Resolver
+This S3 Resolver profile will download an existing index from an S3 bucket (`col-indices`) and expose it through an API.
 
 ## OpenAPI documentation
 The API is documented using OpenAPI.
@@ -78,10 +91,22 @@ indexing.col-username=# The username to use for authenticating with the Checklis
 indexing.col-password=# The passowrd to use for authenticating with the ChecklistBank. You can create an account for ChecklistBank at https://www.gbif.org/user/profile
 
 The following properties are optionally and have a default value.
-indexing.index-at-startup=# Whether to generate a new index at startup. Default is true. If set to false, the application expects an existing index at the location specified by indexing.index-location
-indexing.delete-index=# Whether to delete the index at startup. Default is true. If set to false, the application will not delete the index at shutdown. This can be used to preserve the index between restarts.
 indexing.index-location=# The location where the index is stored. Default is src/main/resources/index
 indexing.temp-coldp-location=# The location where the ColDP dataset is stored. Default is src/main/resources/sample.zip
+
+# Col properties
+These properties are used when downloading the COL Data Package from the ChecklistBank.
+All properties have a sensible default which can be overwritten.
+col.synonyms=# Whether to include synonyms in the download. Default is true
+col.extended=# Whether to include extended data in the download. Default is true
+col.extinct=# Whether to include extinct species in the download. Default is true
+col.export-status-retry-count=# The amount of times to retry the export status. Default is 10
+col.export-status-retry-interval=# The interval between retries in milliseconds. Default is 500 ms (0.5 sec)
+
+# AWS properties
+These are properties required for making the connection to the S3 bucket on AWS.
+aws.accessKeyId=# The access key id for the AWS account
+aws.secretAccessKey=# The secret access key for the AWS account
 ```
 
 ## Install and run

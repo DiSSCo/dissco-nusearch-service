@@ -25,7 +25,6 @@ import static org.gbif.api.vocabulary.Rank.UNRANKED;
 import static org.gbif.api.vocabulary.Rank.VARIETY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.dissco.nusearch.service.NubMatchingService;
 import org.gbif.api.vocabulary.Rank;
 import org.junit.jupiter.api.Test;
 

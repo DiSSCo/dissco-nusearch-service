@@ -9,7 +9,6 @@ import eu.dissco.nusearch.component.ScientificNameAnalyzer;
 import eu.dissco.nusearch.configuration.LuceneConfiguration;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.property.IndexingProperties;
-import eu.dissco.nusearch.repository.NubIndex;
 import java.io.IOException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.AlreadyClosedException;
