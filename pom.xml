@@ -29,6 +29,7 @@
     <commons-compress.version>1.26.0</commons-compress.version>
     <swagger-annotations.version>2.2.20</swagger-annotations.version>
     <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
+    <mockito-inline.version>5.2.0</mockito-inline.version>
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
   </properties>
 
@@ -55,6 +56,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -174,6 +179,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>${mockito-inline.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
@@ -234,6 +245,28 @@
         <configuration>
           <useSystemClassLoader>false</useSystemClassLoader>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <configuration>
+          <sourceDirectory>${basedir}/src/main/resources/json-schema/</sourceDirectory>
+          <targetPackage>eu.dissco.nusearch.schema</targetPackage>
+          <generateBuilders>true</generateBuilders>
+          <includeConstructors>true</includeConstructors>
+          <includeDynamicBuilders>true</includeDynamicBuilders>
+          <includeAdditionalProperties>false</includeAdditionalProperties>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>
+                generate
+              </goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

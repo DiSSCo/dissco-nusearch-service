@@ -1,5 +1,6 @@
 package eu.dissco.nusearch.service;
 
+import static eu.dissco.nusearch.TestUtils.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
@@ -72,7 +73,7 @@ class ColDpDownloadingServiceTest {
         .setBody("\"6877d4ef-cc87-42f0-b922-f54133185840\""));
     mockHandleServer.enqueue(new MockResponse()
         .setResponseCode(HttpStatus.OK.value())
-        .setBody(mapper.writeValueAsString(responseBody))
+        .setBody(MAPPER.writeValueAsString(responseBody))
         .addHeader("Content-Type", "application/json"));
     mockHandleServer.enqueue(new MockResponse()
         .setResponseCode(HttpStatus.OK.value()));
@@ -174,6 +175,7 @@ class ColDpDownloadingServiceTest {
   private JsonNode givenDownloadResponseBody(String status) {
     var node = mapper.createObjectNode();
     node.put("download",
+    return MAPPER.createObjectNode().put("download",
         String.format("http://%s:%s/%s", mockHandleServer.getHostName(), mockHandleServer.getPort(),
             "job/68/6877d4ef-cc87-42f0-b922-f54133185840.zip"));
     node.put("status", status);

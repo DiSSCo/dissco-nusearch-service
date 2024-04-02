@@ -1,0 +1,50 @@
+{
+  "$id": "agent",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$comment": "",
+  "properties": {
+    "agentRole": {
+      "type": "string",
+      "examples": [
+        "collector"
+      ]
+    },
+    "agentType": {
+      "type": "string",
+      "examples": [
+        "machine",
+        "human",
+        "organisation"
+      ]
+    },
+    "agentName": {
+      "type": "string",
+      "examples": [
+        "John Smith"
+      ]
+    },
+    "agentRoleBegan": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agentRoleEnded": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "agentRoleOrder": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "identifiers": {
+      "type": "array",
+      "items": {
+        "$ref": "identifications.json"
+      }
+    }
+  },
+  "required": [
+    "agentType",
+    "agentName"
+  ]
+}
