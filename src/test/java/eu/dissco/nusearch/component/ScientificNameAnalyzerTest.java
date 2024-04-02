@@ -16,7 +16,6 @@ package eu.dissco.nusearch.component;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.dissco.nusearch.component.ScientificNameAnalyzer;
 import java.io.StringReader;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;

@@ -14,9 +14,7 @@
 package eu.dissco.nusearch.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import eu.dissco.nusearch.utils.RankUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.junit.jupiter.api.Test;
 

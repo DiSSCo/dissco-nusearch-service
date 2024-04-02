@@ -16,6 +16,8 @@ package eu.dissco.nusearch.controller;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub-ws/src/main/java/org/gbif/checklistbank/ws/nub/NubResource.java
 
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
 import static eu.dissco.nusearch.utils.ParameterUtils.first;
 
 import com.google.common.base.Strings;
@@ -40,6 +42,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,6 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = "/species",
     produces = {MediaType.APPLICATION_JSON_VALUE}
 )
+@Profile({STANDALONE, S3_RESOLVER})
 public class NubController {
 
   private final NubMatchingService matchingService;

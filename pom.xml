@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.2</version>
+    <version>3.2.4</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>eu.dissco</groupId>
@@ -18,13 +18,14 @@
     <java.version>21</java.version>
     <univocity-parsers.version>2.9.1</univocity-parsers.version>
     <gbif-name-parser.version>3.10.2-SNAPSHOT</gbif-name-parser.version>
-    <gbif-api.version>1.14.0-SNAPSHOT</gbif-api.version>
+    <gbif-api.version>1.16.1-SNAPSHOT</gbif-api.version>
     <gbif-common.version>0.61-SNAPSHOT</gbif-common.version>
     <gbif-parsers.version>0.67</gbif-parsers.version>
     <gbif-name-parser-v1.version>3.10.2-SNAPSHOT</gbif-name-parser-v1.version>
-    <gbif-common-ws.version>1.27-SNAPSHOT</gbif-common-ws.version>
+    <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
     <spring-security-core.version>6.2.2</spring-security-core.version>
     <lucene.version>9.9.1</lucene.version>
+    <amazon.awssdk.version>2.25.18</amazon.awssdk.version>
     <commons-compress.version>1.26.0</commons-compress.version>
     <swagger-annotations.version>2.2.20</swagger-annotations.version>
     <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
@@ -156,8 +157,16 @@
       <artifactId>spring-security-core</artifactId>
       <version>${spring-security-core.version}</version>
     </dependency>
-
-
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <version>${amazon.awssdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3-transfer-manager</artifactId>
+      <version>${amazon.awssdk.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>

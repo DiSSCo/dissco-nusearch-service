@@ -16,11 +16,11 @@ package eu.dissco.nusearch.repository;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub/src/main/java/org/gbif/nub/lookup/fuzzy/NubIndex.java
 
+import com.google.common.collect.Lists;
 import eu.dissco.nusearch.component.ScientificNameAnalyzer;
 import eu.dissco.nusearch.domain.ColDpClassification;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.utils.LuceneUtils;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
