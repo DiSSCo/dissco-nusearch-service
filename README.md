@@ -69,7 +69,7 @@ The following properties are optionally and have a default value.
 indexing.index-location=# The location where the index is stored. Default is src/main/resources/index
 indexing.temp-coldp-location=# The location where the ColDP dataset is stored. Default is src/main/resources/sample.zip
 
-# Col Properties
+# Col properties
 These properties are used when downloading the COL Data Package from the ChecklistBank.
 All properties have a sensible default which can be overwritten.
 col.synonyms=# Whether to include synonyms in the download. Default is true
@@ -77,6 +77,11 @@ col.extended=# Whether to include extended data in the download. Default is true
 col.extinct=# Whether to include extinct species in the download. Default is true
 col.export-status-retry-count=# The amount of times to retry the export status. Default is 10
 col.export-status-retry-interval=# The interval between retries in milliseconds. Default is 500 ms (0.5 sec)
+
+# AWS properties
+These are properties required for making the connection to the S3 bucket on AWS.
+aws.accessKeyId=# The access key id for the AWS account
+aws.secretAccessKey=# The secret access key for the AWS account
 ```
 
 ## Install and run
