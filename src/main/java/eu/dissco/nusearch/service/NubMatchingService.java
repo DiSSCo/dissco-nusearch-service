@@ -16,8 +16,17 @@ package eu.dissco.nusearch.service;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub/src/main/java/org/gbif/nub/lookup/fuzzy/NubMatchingServiceImpl.java
 
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
 import static eu.dissco.nusearch.utils.NameFormatter.labelBuilder;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import eu.dissco.nusearch.component.AuthorComparator;
 import eu.dissco.nusearch.component.StringSimilarity;
 import eu.dissco.nusearch.domain.ColDpClassification;
@@ -29,13 +38,6 @@ import eu.dissco.nusearch.repository.NubIndex;
 import eu.dissco.nusearch.utils.CleanupUtils;
 import eu.dissco.nusearch.utils.NameNRank;
 import eu.dissco.nusearch.utils.RankUtils;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -64,10 +66,12 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@Profile({STANDALONE, S3_RESOLVER})
 public class NubMatchingService {
 
   public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =

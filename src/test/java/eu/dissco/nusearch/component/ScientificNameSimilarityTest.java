@@ -15,7 +15,6 @@ package eu.dissco.nusearch.component;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.dissco.nusearch.component.ScientificNameSimilarity;
 import org.junit.jupiter.api.Test;
 
 class ScientificNameSimilarityTest {

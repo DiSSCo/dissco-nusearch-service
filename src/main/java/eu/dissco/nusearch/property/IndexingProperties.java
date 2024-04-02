@@ -11,10 +11,6 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "indexing")
 public class IndexingProperties {
 
-  private boolean indexAtStartup = true;
-
-  private boolean deleteIndex = true;
-
   @Positive
   private int colDataset;
 

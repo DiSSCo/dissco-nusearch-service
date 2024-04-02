@@ -1,10 +1,11 @@
 package eu.dissco.nusearch.service;
 
-import eu.dissco.nusearch.exception.ColAuthenticationException;
-import eu.dissco.nusearch.exception.ColExportRequestException;
-import eu.dissco.nusearch.property.IndexingProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.dissco.nusearch.exception.ColAuthenticationException;
+import eu.dissco.nusearch.exception.ColExportRequestException;
+import eu.dissco.nusearch.property.ColDownloadProperties;
+import eu.dissco.nusearch.property.IndexingProperties;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,7 @@ public class ColDpDownloadingService {
   private final ObjectMapper mapper;
   private final WebClient webClient;
   private final IndexingProperties properties;
+  private final ColDownloadProperties colDownloadProperties;
 
   public static boolean isRetryableServerError(Throwable throwable, boolean downloadRetry) {
     if (throwable instanceof WebClientResponseException webClientResponseException) {
@@ -49,7 +51,7 @@ public class ColDpDownloadingService {
 
   public Path downloadColDpDataset() throws Exception {
     var exportId = createExport();
-    var downloadUrl = getDownloadUrl(exportId);
+    var downloadUrl = getDownloadUrl(exportId, 0);
     return downloadColDp(downloadUrl);
   }
 
@@ -68,17 +70,33 @@ public class ColDpDownloadingService {
     return path;
   }
 
-  private String getDownloadUrl(String exportId)
-      throws ColExportRequestException, ColAuthenticationException {
+  private String getDownloadUrl(String exportId, int retryCount)
+      throws ColExportRequestException, ColAuthenticationException, InterruptedException {
     log.info(
         "Trying to retrieve download URL for export: {} May take several minutes/retries if the dataset is new",
         exportId);
     var requestResult = requestExport(HttpMethod.GET, "/export/" + exportId, null, JsonNode.class,
         true);
     var response = getFutureResponse(requestResult);
-    log.info("Checklistbank successfully created download: {}",
-        response.toPrettyString());
-    return response.get("download").asText();
+    if (!response.get("status").asText().equals("finished")) {
+      if (retryCount > colDownloadProperties.getExportStatusRetryCount()) {
+        log.error("Checklistbank export is not ready after {} retries. Export ID: {}",
+            colDownloadProperties.getExportStatusRetryCount(), exportId);
+        throw new ColExportRequestException(
+            "Failed to retrieve download URL for export: " + exportId
+                + ". Export is not ready after " + colDownloadProperties.getExportStatusRetryCount()
+                + " retries.");
+      } else {
+        log.info("Checklistbank export is not ready yet. Retrying in 500ms");
+        Thread.sleep(colDownloadProperties.getExportStatusRetryTime());
+        retryCount = retryCount + 1;
+        return getDownloadUrl(exportId, retryCount);
+      }
+    } else {
+      log.info("Checklistbank successfully created download: {}",
+          response.toPrettyString());
+      return response.get("download").asText();
+    }
   }
 
   private String createExport() throws ColExportRequestException, ColAuthenticationException {
@@ -149,8 +167,9 @@ public class ColDpDownloadingService {
   private JsonNode buildRequestBody() {
     var json = mapper.createObjectNode();
     json.put("format", "coldp");
-    json.put("synonyms", true);
-    json.put("extinct", true);
+    json.put("synonyms", colDownloadProperties.isSynonyms());
+    json.put("extinct", colDownloadProperties.isExtinct());
+    json.put("extended", colDownloadProperties.isExtended());
     return json;
   }
 }

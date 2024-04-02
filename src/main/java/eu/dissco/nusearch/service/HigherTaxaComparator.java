@@ -16,12 +16,15 @@ package eu.dissco.nusearch.service;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub/src/main/java/org/gbif/nub/lookup/fuzzy/HigherTaxaComparator.java
 
-import eu.dissco.nusearch.component.RsGbifOrg;
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
+import eu.dissco.nusearch.component.RsGbifOrg;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +41,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
@@ -49,6 +53,7 @@ import org.springframework.stereotype.Component;
  * https://github.com/gbif/rs.gbif.org/tree/master/dictionaries/synonyms
  */
 @Component
+@Profile({STANDALONE, S3_RESOLVER})
 public class HigherTaxaComparator {
 
   @PostConstruct

@@ -2,7 +2,6 @@ package eu.dissco.nusearch.domain;
 
 import lombok.Data;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.nameparser.api.Rank;
 
 @Data
 public class ColDpRankedName {

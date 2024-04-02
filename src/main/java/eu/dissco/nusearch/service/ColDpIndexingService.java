@@ -1,5 +1,8 @@
 package eu.dissco.nusearch.service;
 
+import static eu.dissco.nusearch.Profiles.S3_INDEXER;
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
 import static eu.dissco.nusearch.repository.NubIndex.FIELD_CANONICAL_NAME;
 import static eu.dissco.nusearch.repository.NubIndex.FIELD_ID;
 import static eu.dissco.nusearch.repository.NubIndex.FIELD_RANK;
@@ -7,11 +10,12 @@ import static eu.dissco.nusearch.repository.NubIndex.FIELD_SCIENTIFIC_NAME;
 import static eu.dissco.nusearch.repository.NubIndex.FIELD_STATUS;
 import static eu.dissco.nusearch.repository.NubIndex.addIfNotNull;
 
+import com.univocity.parsers.tsv.TsvRoutines;
 import eu.dissco.nusearch.domain.ColDpClassification;
 import eu.dissco.nusearch.domain.ColDpNameUsage;
 import eu.dissco.nusearch.domain.NameUsageCsvRow;
 import eu.dissco.nusearch.property.IndexingProperties;
-import com.univocity.parsers.tsv.TsvRoutines;
+import eu.dissco.nusearch.repository.StorageRepositoryInterface;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.BufferedInputStream;
@@ -37,6 +41,7 @@ import org.apache.lucene.util.BytesRef;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nameparser.NameParserGbifV1;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -49,6 +54,8 @@ public class ColDpIndexingService {
   private final IndexingProperties properties;
   private final NameParserGbifV1 nameParser;
   private final ColDpDownloadingService colDpDownloadingService;
+  private final Environment environment;
+  private final StorageRepositoryInterface storageRepository;
 
   private static ColDpClassification toColDpClassification(NameUsageCsvRow classification) {
     ColDpClassification colDpClassification = new ColDpClassification();
@@ -101,27 +108,27 @@ public class ColDpIndexingService {
 
   @PostConstruct
   void setup() throws Exception {
-    if (properties.isIndexAtStartup()) {
+    if (environment.matchesProfiles(S3_RESOLVER)) {
+      storageRepository.downloadIndex(properties.getIndexLocation());
+    } else {
       var tempFile = colDpDownloadingService.downloadColDpDataset();
-//      var tempFile = Path.of("src/test/resources/test.zip");
       log.info("Start filling cache...");
       var nameUsageMap = populateCache(tempFile);
-
       log.info("Starting indexer...");
       processNameUsages(nameUsageMap, tempFile);
       log.info("Finished indexing");
-    } else {
-      log.info("Indexing is disabled. Expecting a pre-built index at: {}.",
-          properties.getIndexLocation());
+      if (environment.matchesProfiles(S3_INDEXER)) {
+        storageRepository.uploadIndex(properties.getIndexLocation());
+      }
     }
   }
 
   @PreDestroy
   void destroy() throws IOException {
-    if (properties.isDeleteIndex()) {
+    if (environment.matchesProfiles(S3_INDEXER, STANDALONE)) {
       cleanupFiles(properties.getTempColdpLocation());
-      cleanUpIndex(properties.getIndexLocation());
     }
+    cleanUpIndex(properties.getIndexLocation());
   }
 
   private void cleanUpIndex(String indexLocation) throws IOException {
@@ -135,7 +142,10 @@ public class ColDpIndexingService {
 
   private void cleanupFiles(String tempColdpLocation) throws IOException {
     log.info("Deleting temporary coldp download: {}", tempColdpLocation);
-    Files.delete(Path.of(tempColdpLocation));
+    var tempFile = Path.of(tempColdpLocation);
+    if (Files.exists(tempFile)) {
+      Files.delete(tempFile);
+    }
   }
 
   private Document parseToDocument(NameUsageCsvRow row,

@@ -1,9 +1,9 @@
 package eu.dissco.nusearch.configuration;
 
-import eu.dissco.nusearch.domain.NameUsageCsvRow;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.tsv.TsvParserSettings;
 import com.univocity.parsers.tsv.TsvRoutines;
+import eu.dissco.nusearch.domain.NameUsageCsvRow;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

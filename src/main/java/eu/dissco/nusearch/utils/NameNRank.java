@@ -18,8 +18,8 @@ package eu.dissco.nusearch.utils;
 
 import static eu.dissco.nusearch.utils.ParameterUtils.first;
 
-import eu.dissco.nusearch.domain.Classification;
 import com.google.common.annotations.VisibleForTesting;
+import eu.dissco.nusearch.domain.Classification;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

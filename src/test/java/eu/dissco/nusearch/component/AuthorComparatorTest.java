@@ -18,9 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.dissco.nusearch.domain.Equality;
 import com.google.common.collect.Lists;
-import eu.dissco.nusearch.component.AuthorComparator;
+import eu.dissco.nusearch.domain.Equality;
 import java.util.List;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NamePart;
