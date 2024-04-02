@@ -57,7 +57,7 @@ public class ColDpDownloadingService {
 
   private Path downloadColDp(String downloadUrl)
       throws Exception {
-    Path path = Paths.get(properties.getTempColdpLocation());
+    Path path = Paths.get(properties.getTempColDpLocation());
     Flux<DataBuffer> flux = webClient
         .get()
         .uri(downloadUrl)

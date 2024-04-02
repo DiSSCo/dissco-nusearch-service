@@ -22,5 +22,5 @@ public class IndexingProperties {
 
   private String indexLocation = "src/main/resources/index";
 
-  private String tempColdpLocation = "src/main/resources/sample.zip";
+  private String tempColDpLocation = "src/main/resources/sample.zip";
 }

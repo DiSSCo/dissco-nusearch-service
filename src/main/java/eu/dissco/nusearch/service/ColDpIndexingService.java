@@ -126,7 +126,7 @@ public class ColDpIndexingService {
   @PreDestroy
   void destroy() throws IOException {
     if (environment.matchesProfiles(S3_INDEXER, STANDALONE)) {
-      cleanupFiles(properties.getTempColdpLocation());
+      cleanupFiles(properties.getTempColDpLocation());
     }
     cleanUpIndex(properties.getIndexLocation());
   }
@@ -140,9 +140,9 @@ public class ColDpIndexingService {
     Files.delete(path);
   }
 
-  private void cleanupFiles(String tempColdpLocation) throws IOException {
-    log.info("Deleting temporary coldp download: {}", tempColdpLocation);
-    var tempFile = Path.of(tempColdpLocation);
+  private void cleanupFiles(String tempColDpLocation) throws IOException {
+    log.info("Deleting temporary coldp download: {}", tempColDpLocation);
+    var tempFile = Path.of(tempColDpLocation);
     if (Files.exists(tempFile)) {
       Files.delete(tempFile);
     }

@@ -1,6 +1,7 @@
 package eu.dissco.nusearch.repository;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -52,7 +53,7 @@ class S3StorageRepositoryTest {
   }
 
   @Test
-  void testUploadIndex() throws IndexingFailedException {
+  void testUploadIndex() {
     // Given
     String indexLocation = "src/test/resources/index";
     given(s3Client.createBucket(any(Consumer.class))).willThrow(
@@ -63,7 +64,7 @@ class S3StorageRepositoryTest {
         CompletedDirectoryUpload.builder().failedTransfers(List.of()).build()));
 
     // When / Then
-    s3StorageRepository.uploadIndex(indexLocation);
+    assertDoesNotThrow(() -> s3StorageRepository.uploadIndex(indexLocation));
   }
 
   @Test
@@ -89,7 +90,7 @@ class S3StorageRepositoryTest {
   }
 
   @Test
-  void testDownloadIndex() throws IndexingFailedException {
+  void testDownloadIndex() {
     // Given
     String indexLocation = "src/test/resources/index";
     given(s3Client.listObjects(any(Consumer.class))).willReturn(CompletableFuture.completedFuture(
@@ -105,7 +106,7 @@ class S3StorageRepositoryTest {
         CompletedDirectoryDownload.builder().failedTransfers(List.of()).build()));
 
     // When / Then
-    s3StorageRepository.downloadIndex(indexLocation);
+    assertDoesNotThrow(() -> s3StorageRepository.downloadIndex(indexLocation));
   }
 
   @Test

@@ -77,7 +77,7 @@ class ColDpDownloadingServiceTest {
     mockHandleServer.enqueue(new MockResponse()
         .setResponseCode(HttpStatus.OK.value()));
 
-    given(properties.getTempColdpLocation()).willReturn(pathLocation);
+    given(properties.getTempColDpLocation()).willReturn(pathLocation);
 
     // When
     var response = service.downloadColDpDataset();
@@ -138,7 +138,7 @@ class ColDpDownloadingServiceTest {
     mockHandleServer.enqueue(new MockResponse()
         .setResponseCode(HttpStatus.OK.value()));
 
-    given(properties.getTempColdpLocation()).willReturn(pathLocation);
+    given(properties.getTempColDpLocation()).willReturn(pathLocation);
 
     // When
     var response = service.downloadColDpDataset();
