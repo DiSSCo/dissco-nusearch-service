@@ -9,8 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
-import software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException;
-import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
 
 @Slf4j
@@ -19,7 +18,7 @@ import software.amazon.awssdk.transfer.s3.S3TransferManager;
 @AllArgsConstructor
 public class S3StorageRepository implements StorageRepositoryInterface {
 
-  private static final String BUCKET_NAME = "col-indices";
+  private static final String BUCKET_NAME = "col-indexes";
 
   private final S3AsyncClient s3Client;
   private final S3TransferManager transferManager;
@@ -28,9 +27,11 @@ public class S3StorageRepository implements StorageRepositoryInterface {
   public void uploadIndex(String indexLocation) throws IndexingFailedException {
     log.info("Uploading index to S3");
     try {
-      s3Client.createBucket(b -> b.bucket(BUCKET_NAME));
-    } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException e) {
-      log.info("Bucket already exists: {}", BUCKET_NAME);
+      s3Client.headBucket(b -> b.bucket(BUCKET_NAME));
+    } catch (NoSuchBucketException e) {
+      log.info("Bucket does not exists, please create the bucket first: {}", BUCKET_NAME);
+      throw new IndexingFailedException(
+          "Bucket does not exists, please create the bucket first: " + BUCKET_NAME);
     }
 
     var directoryUpload = transferManager.uploadDirectory(
@@ -40,7 +41,8 @@ public class S3StorageRepository implements StorageRepositoryInterface {
     );
     var completedDirectoryUpload = directoryUpload.completionFuture().join();
     if (!completedDirectoryUpload.failedTransfers().isEmpty()) {
-      log.error("Failed to upload index to S3");
+      var firstEx = completedDirectoryUpload.failedTransfers().getFirst().exception();
+      log.error("Failed to upload index to S3", firstEx);
       throw new IndexingFailedException("Failed to upload index to S3");
     }
   }
@@ -59,7 +61,8 @@ public class S3StorageRepository implements StorageRepositoryInterface {
       );
       var completedDirectoryDownload = directoryDownload.completionFuture().join();
       if (!completedDirectoryDownload.failedTransfers().isEmpty()) {
-        log.error("Failed to download index from S3");
+        var firstEx = completedDirectoryDownload.failedTransfers().getFirst().exception();
+        log.error("Failed to download index from S3", firstEx);
         throw new IndexingFailedException("Failed to download index from S3");
       }
     } else {

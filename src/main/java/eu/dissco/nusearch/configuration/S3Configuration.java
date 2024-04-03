@@ -17,7 +17,7 @@ public class S3Configuration {
   public S3AsyncClient s3Client() {
     return S3AsyncClient.builder()
         .credentialsProvider(DefaultCredentialsProvider.create())
-        .region(Region.EU_WEST_1)
+        .region(Region.EU_WEST_2)
         .build();
   }
 
