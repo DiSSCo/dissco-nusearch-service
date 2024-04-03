@@ -1,16 +1,21 @@
 package eu.dissco.nusearch.service;
 
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.KafkaProducerProperties;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@Profile({STANDALONE, S3_RESOLVER})
 @AllArgsConstructor
 public class KafkaProducerService {
 

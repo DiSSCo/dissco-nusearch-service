@@ -1,5 +1,8 @@
 package eu.dissco.nusearch.service;
 
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
+
 import com.google.common.base.Strings;
 import eu.dissco.nusearch.domain.Classification;
 import eu.dissco.nusearch.domain.ColNameUsageMatch2;
@@ -21,10 +24,12 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nameparser.NameParserGbifV1;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@Profile({STANDALONE, S3_RESOLVER})
 @AllArgsConstructor
 public class DigitalSpecimenMatchingService {
 

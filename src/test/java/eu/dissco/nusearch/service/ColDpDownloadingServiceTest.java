@@ -175,10 +175,9 @@ class ColDpDownloadingServiceTest {
   private JsonNode givenDownloadResponseBody(String status) {
     var node = mapper.createObjectNode();
     node.put("download",
-    return MAPPER.createObjectNode().put("download",
         String.format("http://%s:%s/%s", mockHandleServer.getHostName(), mockHandleServer.getPort(),
             "job/68/6877d4ef-cc87-42f0-b922-f54133185840.zip"));
     node.put("status", status);
     return node;
   }
-}
+};
