@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
@@ -56,8 +57,6 @@ class S3StorageRepositoryTest {
   void testUploadIndex() {
     // Given
     String indexLocation = "src/test/resources/index";
-    given(s3Client.createBucket(any(Consumer.class))).willThrow(
-        BucketAlreadyOwnedByYouException.class);
     var dirUpload = mock(DirectoryUpload.class);
     given(transferManager.uploadDirectory(any(Consumer.class))).willReturn(dirUpload);
     given(dirUpload.completionFuture()).willReturn(CompletableFuture.completedFuture(
@@ -71,8 +70,6 @@ class S3StorageRepositoryTest {
   void testUploadIndexFailed() {
     // Given
     String indexLocation = "src/test/resources/index";
-    given(s3Client.createBucket(any(Consumer.class))).willThrow(
-        BucketAlreadyOwnedByYouException.class);
     var dirUpload = mock(DirectoryUpload.class);
     given(transferManager.uploadDirectory(any(Consumer.class))).willReturn(dirUpload);
     given(dirUpload.completionFuture()).willReturn(CompletableFuture.completedFuture(
@@ -83,6 +80,17 @@ class S3StorageRepositoryTest {
                     UploadFileRequest.builder().putObjectRequest(PutObjectRequest.builder().build())
                         .source(Paths.get(indexLocation).toFile()).build())
                 .build())).build()));
+
+    // When/Then
+    assertThrows(IndexingFailedException.class,
+        () -> s3StorageRepository.uploadIndex(indexLocation));
+  }
+
+  @Test
+  void testUploadBucketNotExsists() {
+    // Given
+    String indexLocation = "src/test/resources/index";
+    given(s3Client.headBucket(any(Consumer.class))).willThrow(NoSuchBucketException.class);
 
     // When/Then
     assertThrows(IndexingFailedException.class,
