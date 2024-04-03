@@ -40,7 +40,8 @@ public class S3StorageRepository implements StorageRepositoryInterface {
     );
     var completedDirectoryUpload = directoryUpload.completionFuture().join();
     if (!completedDirectoryUpload.failedTransfers().isEmpty()) {
-      log.error("Failed to upload index to S3");
+      var firstEx = completedDirectoryUpload.failedTransfers().getFirst().exception();
+      log.error("Failed to upload index to S3", firstEx);
       throw new IndexingFailedException("Failed to upload index to S3");
     }
   }
