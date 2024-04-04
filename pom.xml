@@ -25,7 +25,7 @@
     <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
     <spring-security-core.version>6.2.2</spring-security-core.version>
     <lucene.version>9.9.1</lucene.version>
-    <amazon.awssdk.version>2.25.18</amazon.awssdk.version>
+    <amazon.awssdk.version>2.25.23</amazon.awssdk.version>
     <commons-compress.version>1.26.0</commons-compress.version>
     <swagger-annotations.version>2.2.20</swagger-annotations.version>
     <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
