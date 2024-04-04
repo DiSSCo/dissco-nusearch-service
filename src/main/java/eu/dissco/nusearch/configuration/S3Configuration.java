@@ -15,7 +15,7 @@ public class S3Configuration {
 
   @Bean
   public S3AsyncClient s3Client() {
-    return S3AsyncClient.builder()
+    return S3AsyncClient.crtBuilder()
         .credentialsProvider(DefaultCredentialsProvider.create())
         .region(Region.EU_WEST_2)
         .build();
