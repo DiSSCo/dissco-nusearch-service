@@ -4,7 +4,7 @@ import eu.dissco.nusearch.Profiles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
@@ -16,7 +16,7 @@ public class S3Configuration {
   @Bean
   public S3AsyncClient s3Client() {
     return S3AsyncClient.crtBuilder()
-        .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+        .credentialsProvider(DefaultCredentialsProvider.create())
         .region(Region.EU_WEST_2)
         .build();
   }
