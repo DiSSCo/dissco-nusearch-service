@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
@@ -49,26 +51,33 @@ public class S3StorageRepository implements StorageRepositoryInterface {
 
   public void downloadIndex(String indexLocation) throws IndexingFailedException {
     log.info("Checking if index: {} exists in S3", indexingProperties.getColDataset());
-    var directory = s3Client.listObjects(b -> b.bucket(BUCKET_NAME)
-        .prefix(String.valueOf(indexingProperties.getColDataset()))).join();
-    if (!directory.contents().isEmpty()) {
-      log.info("Downloading index from S3");
-      var directoryDownload = transferManager.downloadDirectory(
-          b -> b.destination(Paths.get(indexLocation))
-              .listObjectsV2RequestTransformer(
-                  t -> t.prefix(String.valueOf(indexingProperties.getColDataset())))
-              .bucket(BUCKET_NAME)
-      );
-      var completedDirectoryDownload = directoryDownload.completionFuture().join();
-      if (!completedDirectoryDownload.failedTransfers().isEmpty()) {
-        var firstEx = completedDirectoryDownload.failedTransfers().getFirst();
-        log.error("Failed to download index to S3 with message: {}", firstEx, firstEx.exception());
-        throw new IndexingFailedException("Failed to download index from S3");
+    try {
+      var directory = s3Client.listObjects(b -> b.bucket(BUCKET_NAME)
+          .prefix(String.valueOf(indexingProperties.getColDataset()))).join();
+      if (!directory.contents().isEmpty()) {
+        log.info("Downloading index from S3");
+        var directoryDownload = transferManager.downloadDirectory(
+            b -> b.destination(Paths.get(indexLocation))
+                .listObjectsV2RequestTransformer(
+                    t -> t.prefix(String.valueOf(indexingProperties.getColDataset())))
+                .bucket(BUCKET_NAME)
+        );
+        var completedDirectoryDownload = directoryDownload.completionFuture().join();
+        if (!completedDirectoryDownload.failedTransfers().isEmpty()) {
+          var firstEx = completedDirectoryDownload.failedTransfers().getFirst();
+          log.error("Failed to download index to S3 with message: {}", firstEx,
+              firstEx.exception());
+          throw new IndexingFailedException("Failed to download index from S3");
+        }
+      } else {
+        log.warn("No index for dataset {} found in S3", indexingProperties.getColDataset());
+        throw new IndexingFailedException(
+            "Index: " + indexingProperties.getColDataset() + " not available on S3");
       }
-    } else {
-      log.warn("No index for dataset {} found in S3", indexingProperties.getColDataset());
-      throw new IndexingFailedException(
-          "Index: " + indexingProperties.getColDataset() + " not available on S3");
+    } catch (SdkException ex) {
+      log.error("Failed to check for a download in S3 with message: {}", ex.getMessage(), ex);
+      throw new IndexingFailedException("Failed to check for existing indexes in bucket on S3");
     }
   }
+
 }
