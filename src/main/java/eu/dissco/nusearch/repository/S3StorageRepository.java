@@ -41,8 +41,8 @@ public class S3StorageRepository implements StorageRepositoryInterface {
     );
     var completedDirectoryUpload = directoryUpload.completionFuture().join();
     if (!completedDirectoryUpload.failedTransfers().isEmpty()) {
-      var firstEx = completedDirectoryUpload.failedTransfers().getFirst().exception();
-      log.error("Failed to upload index to S3", firstEx);
+      var firstEx = completedDirectoryUpload.failedTransfers().getFirst();
+      log.error("Failed to upload index to S3 with message: {}", firstEx, firstEx.exception());
       throw new IndexingFailedException("Failed to upload index to S3");
     }
   }
@@ -61,8 +61,8 @@ public class S3StorageRepository implements StorageRepositoryInterface {
       );
       var completedDirectoryDownload = directoryDownload.completionFuture().join();
       if (!completedDirectoryDownload.failedTransfers().isEmpty()) {
-        var firstEx = completedDirectoryDownload.failedTransfers().getFirst().exception();
-        log.error("Failed to download index from S3", firstEx);
+        var firstEx = completedDirectoryDownload.failedTransfers().getFirst();
+        log.error("Failed to download index to S3 with message: {}", firstEx, firstEx.exception());
         throw new IndexingFailedException("Failed to download index from S3");
       }
     } else {
@@ -70,6 +70,5 @@ public class S3StorageRepository implements StorageRepositoryInterface {
       throw new IndexingFailedException(
           "Index: " + indexingProperties.getColDataset() + " not available on S3");
     }
-
   }
 }
