@@ -10,6 +10,8 @@ The link to the Catalogue of Life will be added as a entityRelationship to the D
 Last we will update the specimenName and the topicDiscipline according to the taxonomic identification.
 The updated event will be sent to a new Kafka topic.
 
+The best way is to first generate an index and store it on S3 then run the S3 Resolver profile to deploy the APIs/Kafka.
+
 ## DiSSCo specific properties
 ```
 # Kafka consumer properties
