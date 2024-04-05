@@ -4,12 +4,11 @@ services:
     ports:
       - 8080:8080
     environment:
+        - spring.profiles.active=standalone
         - indexing.col-password=${COL_PASSWORD}
         - indexing.col-username=${COL_USERNAME}
         - indexing.col-dataset=2014
         - indexing.index-location=/index-files/index
-        - indexing.delete-index=true
-        - indexing.index-at-startup=true
         - indexing.temp-coldp-location=/index-files/col-temp.zip
     volumes:
       - /tmp:/index-files
