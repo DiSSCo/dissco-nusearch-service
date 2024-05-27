@@ -117,7 +117,7 @@ public class DigitalSpecimenMatchingService {
 
   private static void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
       DigitalSpecimenEvent event) {
-    event.digitalSpecimenWrapper().attributes().getEntityRelationships()
+    event.digitalSpecimenWrapper().attributes().getEntityRelationship()
         .add(new eu.dissco.nusearch.schema.EntityRelationships()
             .withEntityRelationshipDate(Date.from(Instant.now()))
             .withEntityRelationshipType("hasColId")

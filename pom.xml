@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.4</version>
+    <version>3.3.0</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>eu.dissco</groupId>
@@ -23,12 +23,11 @@
     <gbif-parsers.version>0.67</gbif-parsers.version>
     <gbif-name-parser-v1.version>3.10.2-SNAPSHOT</gbif-name-parser-v1.version>
     <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
-    <spring-security-core.version>6.2.2</spring-security-core.version>
     <lucene.version>9.9.1</lucene.version>
-    <amazon.awssdk.version>2.25.23</amazon.awssdk.version>
-    <commons-compress.version>1.26.0</commons-compress.version>
-    <swagger-annotations.version>2.2.20</swagger-annotations.version>
-    <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
+    <amazon.awssdk.version>2.25.60</amazon.awssdk.version>
+    <commons-compress.version>1.26.2</commons-compress.version>
+    <swagger-annotations.version>2.2.21</swagger-annotations.version>
+    <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
   </properties>
@@ -168,12 +167,7 @@
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
     </dependency>
-    <!-- Mitigating CVE-2024-22234 from the gbif-common-ws -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
-      <version>${spring-security-core.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>s3</artifactId>

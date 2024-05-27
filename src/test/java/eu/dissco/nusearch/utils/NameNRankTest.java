@@ -43,6 +43,9 @@ class NameNRankTest {
     assertName("L. iris Miller",
         "L. iris", "Miller", null, "", null, null
     );
+    LinneanClassification invalidCl = new Classification();
+    invalidCl.setGenus("Kn");
+    assertName(null, "Kn", null, null, null, null, null, invalidCl);
 
     cl.setSpecies("iris");
     assertName("Lepidothrix iris L.",

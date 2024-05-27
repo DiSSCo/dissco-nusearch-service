@@ -1,6 +1,7 @@
 {
-  "$id": "root",
+  "$id": "https://schemas.dissco.tech/schemas/digitalobjects/0.2.0/digital-specimens/digital-specimen.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment":"DigitalObject Version 0.2.0",
   "type": "object",
   "properties": {
     "ods:id": {
@@ -24,6 +25,7 @@
       "description": "The timestamp that the object version was created in DiSSCo",
       "format": "date-time",
       "examples": [
+        "2023-10-02T12:31:34.806Z"
       ]
     },
     "ods:type": {
@@ -52,8 +54,7 @@
         "Resolvable",
         "Global",
         "Local"
-      ],
-      "$comment": "Do we need to further distinguish the identifier, for example add 'RESOLVABLE'"
+      ]
     },
     "ods:topicOrigin": {
       "type": "string",
@@ -66,8 +67,7 @@
       ],
       "example": [
         "Natural"
-      ],
-      "$comment": "Do we need to add 'UNKNOWN'?"
+      ]
     },
     "ods:topicDomain": {
       "type": "string",
@@ -83,8 +83,7 @@
       ],
       "example": [
         "Life"
-      ],
-      "$comment": "Do we need to add 'UNKNOWN'?"
+      ]
     },
     "ods:topicDiscipline": {
       "type": "string",
@@ -232,10 +231,6 @@
         "José E. Crespo"
       ]
     },
-    "???:recordedByAgent": {
-      "$ref": "agent.json",
-      "$comment": "Is this an option for the agent instead of adding a list?"
-    },
     "dwc:recordedById": {
       "type": "string",
       "description": "https://rs.tdwg.org/dwc/terms/recordedByID",
@@ -264,52 +259,65 @@
         "Museu de História Natural e da Ciência da Universidade do Porto"
       ]
     },
-    "materialEntity": {
+    "dwc:verbatimLabel": {
+      "type": "string",
+      "description": "https://rs.tdwg.org/dwc/terms/verbatimLabel",
+      "examples": [
+        "ILL: Union Co. Wolf Lake by Powder Plant Bridge. 1 March 1975 Coll. S. Ketzler, S. Herbert\n\nMonotoma longicollis 4 ♂ Det TC McElrath 2018\n\nINHS Insect Collection 456782"
+      ]
+    },
+    "dwc:MaterialEntity": {
       "type": "array",
       "items": {
-        "$ref": "material_entity.json"
+        "$ref": "./material-entity.json"
       }
     },
-    "dwc:identification": {
+    "dwc:Identification": {
       "type": "array",
       "items": {
-        "$ref": "identifications.json"
+        "$ref": "./identifications.json"
       }
     },
-    "assertions": {
+    "???:Assertion": {
       "type": "array",
       "items": {
-        "$ref": "assertions.json"
+        "$ref": "./assertions.json"
       }
     },
-    "occurrences": {
+    "dwc:Occurrence": {
       "type": "array",
       "items": {
-        "$ref": "occurrences.json"
+        "$ref": "./occurrences.json"
       }
     },
-    "entityRelationships": {
+    "???:EntityRelationship": {
       "type": "array",
       "items": {
-        "$ref": "entity_relationships.json"
+        "$ref": "./entity-relationships.json"
       }
     },
-    "citations": {
+    "???:Citation": {
       "type": "array",
       "items": {
-        "$ref": "citations.json"
+        "$ref": "./citations.json"
       }
     },
-    "identifiers": {
+    "???:Identifier": {
       "type": "array",
       "items": {
-        "$ref": "identifiers.json"
+        "$ref": "./identifiers.json"
       }
     },
-    "chronometricAge": {
+    "???:ChronometricAge": {
       "type": "array",
       "items": {
-        "$ref": "chronometric_age.json"
+        "$ref": "./chronometric-age.json"
+      }
+    },
+    "???:Agent": {
+      "type": "array",
+      "items": {
+        "$ref": "./agent.json"
       }
     }
   },
@@ -323,6 +331,6 @@
     "ods:physicalSpecimenIdType",
     "ods:sourceSystem",
     "dcterms:license",
-    "???:institutionId"
+    "dwc:institutionId"
   ]
 }
