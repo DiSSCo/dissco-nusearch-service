@@ -1,6 +1,7 @@
 {
-  "$id": "digitalEntity",
+  "$id": "https://schemas.dissco.tech/schemas/digitalobjects/0.1.0/digital-media-objects/digital-entity.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment":"DigitalObject Version 0.1.0",
   "type": "object",
   "properties": {
     "ods:id": {
@@ -136,25 +137,31 @@
     "assertions": {
       "type": "array",
       "items": {
-        "$ref": "assertions.json"
+        "$ref": "./assertions.json"
       }
     },
     "citations": {
       "type": "array",
       "items": {
-        "$ref": "citations.json"
+        "$ref": "./citations.json"
       }
     },
     "identifiers": {
       "type": "array",
       "items": {
-        "$ref": "identifiers.json"
+        "$ref": "./identifiers.json"
       }
     },
     "entityRelationships": {
       "type": "array",
       "items": {
-        "$ref": "entity_relationships.json"
+        "$ref": "./entity-relationships.json"
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "$ref": "./agent.json"
       }
     }
   },

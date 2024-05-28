@@ -1,5 +1,5 @@
 {
-  "$id": "root",
+  "$id": "https://schemas.dissco.tech/schemas/digitalobjects/0.1.0/shared-models/citations.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
@@ -56,6 +56,12 @@
       "type": "boolean",
       "description": "Unclear yet",
       "$comment": "Unknown what this field should be"
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "$ref": "./agent.json"
+      }
     }
   }
 }

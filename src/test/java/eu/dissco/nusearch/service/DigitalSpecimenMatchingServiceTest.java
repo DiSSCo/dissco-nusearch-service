@@ -174,7 +174,7 @@ class DigitalSpecimenMatchingServiceTest {
                     .withDwcAcceptedNameUsageID("73SWK")
                     .withDwcGenericName("Aa")
             ))));
-    digitalSpecimen.setEntityRelationships(
+    digitalSpecimen.setEntityRelationship(
         List.of(new EntityRelationships()
             .withEntityRelationshipDate(Date.from(DATE))
             .withObjectEntityIri("https://www.catalogueoflife.org/data/taxon/7Q8L8")

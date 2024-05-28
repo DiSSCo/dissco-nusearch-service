@@ -3,6 +3,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
+    "dwc:locationID": {
+      "type": "string",
+      "description": "https://rs.tdwg.org/dwc/terms/locationID",
+      "examples": [
+        "https://opencontext.org/subjects/768A875F-E205-4D0B-DE55-BAB7598D0FD1"
+      ]
+    },
     "dwc:continent": {
       "type": "string",
       "description": "https://rs.tdwg.org/dwc/terms/continent",
@@ -73,6 +80,13 @@
         "Zeeuws-Vlaanderen, Hulst, Braakman"
       ]
     },
+    "dwc:verbatimLocality": {
+      "type": "string",
+      "description": "https://rs.tdwg.org/dwc/terms/verbatimLocality",
+      "examples": [
+        "25 km NNE Bariloche por R. Nac. 237"
+      ]
+    },
     "dwc:minimumElevationInMeters": {
       "type": "number",
       "description": "https://rs.tdwg.org/dwc/terms/minimumElevationInMeters",
@@ -92,6 +106,13 @@
       "description": "https://rs.tdwg.org/dwc/terms/maximumElevationInMeters",
       "examples": [
         205
+      ]
+    },
+    "dwc:verbatimElevation": {
+      "type": "string",
+      "description": "https://rs.tdwg.org/dwc/terms/verbatimElevation",
+      "examples": [
+        "100 - 200 m"
       ]
     },
     "dwc:minimumDistanceAboveSurfaceInMeters": {
@@ -123,6 +144,13 @@
         340
       ]
     },
+    "dwc:verbatimDepth": {
+      "type": "string",
+      "description": "https://rs.tdwg.org/dwc/terms/verbatimDepth",
+      "examples": [
+        "100-200 m"
+      ]
+    },
     "dwc:verticalDatum": {
       "type": "string",
       "description": "https://rs.tdwg.org/dwc/terms/verticalDatum",
@@ -144,9 +172,16 @@
         "under water since 2005"
       ]
     },
-    "georeference": {
+    "???:GeoReference": {
       "type": "object",
       "properties": {
+        "dwc:verbatimCoordinates": {
+          "type": "string",
+          "description": "https://rs.tdwg.org/dwc/terms/verbatimCoordinates",
+          "examples": [
+            "41 05 54S 121 05 34W"
+          ]
+        },
         "dwc:decimalLatitude": {
           "type": "number",
           "description": "https://rs.tdwg.org/dwc/terms/decimalLatitude",
@@ -156,6 +191,13 @@
           "minimum": -180,
           "maximum": 180
         },
+        "dwc:verbatimLatitude": {
+          "type": "string",
+          "description": "https://rs.tdwg.org/dwc/terms/verbatimLatitude",
+          "examples": [
+            "41 05 54.03S"
+          ]
+        },
         "dwc:decimalLongitude": {
           "type": "number",
           "description": "https://rs.tdwg.org/dwc/terms/decimalLongitude",
@@ -164,6 +206,20 @@
           ],
           "minimum": -180,
           "maximum": 180
+        },
+        "dwc:verbatimLongitude": {
+          "type": "string",
+          "description": "https://rs.tdwg.org/dwc/terms/verbatimLongitude",
+          "examples": [
+            "121d 10' 34\" W"
+          ]
+        },
+        "dwc:verbatimCoordinateSystem": {
+          "type": "string",
+          "description": "https://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem",
+          "examples": [
+            "degrees decimal minutes"
+          ]
         },
         "dwc:geodeticDatum": {
           "type": "string",
@@ -206,6 +262,13 @@
           "description": "https://rs.tdwg.org/dwc/terms/footprintSRS",
           "examples": [
             "epsg:4326"
+          ]
+        },
+        "dwc:verbatimSRS": {
+          "type": "string",
+          "description": "https://rs.tdwg.org/dwc/terms/verbatimSRS",
+          "examples": [
+            "NAD27"
           ]
         },
         "dwc:footprintSpatialFit": {
@@ -256,7 +319,7 @@
         }
       }
     },
-    "geologicalContext": {
+    "dwc:GeologicalContext": {
       "type": "object",
       "properties": {
         "dwc:earliestEonOrLowestEonothem": {

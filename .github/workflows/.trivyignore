@@ -1,8 +1,0 @@
-# Date: Apr 2, 2024
-# Notes: Broken Access Control With Direct Use of AuthenticatedVoter
-# Needs to be fixed in Spring parent lib
-CVE-2024-22257
-
-# April 18 2024
-# Spring boot needs to update its version of spring
-CVE-2024-22262
