@@ -14,8 +14,8 @@ import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.domain.DigitalSpecimenWrapper;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
-import eu.dissco.nusearch.schema.Identifications;
-import eu.dissco.nusearch.schema.TaxonIdentification;
+import eu.dissco.nusearch.schema.Identification;
+import eu.dissco.nusearch.schema.OdsHasTaxonIdentification;
 import java.util.List;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -333,14 +333,14 @@ public class TestUtils {
 
   private static DigitalSpecimen givenDigitalSpecimen() {
     return new DigitalSpecimen()
-        .withOdsNormalisedPhysicalSpecimenId(NORMALISED_PHYSICAL_SPECIMEN_ID)
-        .withDwcInstitutionId(INSTITUTION_ID)
+        .withOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID)
+        .withDwcInstitutionID(INSTITUTION_ID)
         .withDwcBasisOfRecord("PreservedSpecimen")
         .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
         .withOdsSpecimenName("Aa brevis")
-        .withDwcIdentification(List.of(
-            new Identifications().withTaxonIdentifications(
-                List.of(new TaxonIdentification().withDwcScientificName("Aa brevis")
+        .withOdsHasIdentification(List.of(
+            new Identification().withOdsHasTaxonIdentification(
+                List.of(new OdsHasTaxonIdentification().withDwcScientificName("Aa brevis")
                     .withDwcOrder("Asparagales"))
             )
         ));

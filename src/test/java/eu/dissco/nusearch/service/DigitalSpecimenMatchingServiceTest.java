@@ -11,11 +11,12 @@ import static org.mockito.Mockito.mockStatic;
 
 import eu.dissco.nusearch.domain.Classification;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
+import eu.dissco.nusearch.property.ApplicationProperties;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
-import eu.dissco.nusearch.schema.EntityRelationships;
-import eu.dissco.nusearch.schema.Identifications;
-import eu.dissco.nusearch.schema.TaxonIdentification;
+import eu.dissco.nusearch.schema.EntityRelationship;
+import eu.dissco.nusearch.schema.Identification;
+import eu.dissco.nusearch.schema.OdsHasTaxonIdentification;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -50,6 +51,7 @@ class DigitalSpecimenMatchingServiceTest {
   private DigitalSpecimenMatchingService service;
   private MockedStatic<Instant> mockedInstant;
   private MockedStatic<Clock> mockedClock;
+  private ApplicationProperties properties = new ApplicationProperties();
 
   private static ExecutorService currentThreadExecutorService() {
     CallerRunsPolicy callerRunsPolicy =
@@ -67,7 +69,7 @@ class DigitalSpecimenMatchingServiceTest {
   @BeforeEach
   void setup() {
     this.service = new DigitalSpecimenMatchingService(nubMatchingService, executorService,
-        nameParserGbifV1, kafkaProducerService);
+        nameParserGbifV1, kafkaProducerService, properties);
     Clock clock = Clock.fixed(DATE, ZoneOffset.UTC);
     Instant instant = Instant.now(clock);
     mockedInstant = mockStatic(Instant.class);
@@ -106,11 +108,13 @@ class DigitalSpecimenMatchingServiceTest {
     // Given
     var digitalSpecimenEvent = givenDigitalSpecimenEvent();
     digitalSpecimenEvent.digitalSpecimenWrapper().attributes()
-        .getDwcIdentification().get(0).getTaxonIdentifications().get(0).setDwcTaxonRank("species");
+        .getOdsHasIdentification().getFirst().getOdsHasTaxonIdentification().getFirst()
+        .setDwcTaxonRank("species");
     var messages = List.of(digitalSpecimenEvent);
     var classification = new Classification();
     classification.setOrder("Asparagales");
-    given(nubMatchingService.match2(null, "Aa brevis", null, null, null, null, Rank.SPECIES, classification,
+    given(nubMatchingService.match2(null, "Aa brevis", null, null, null, null, Rank.SPECIES,
+        classification,
         null, false, true)).willReturn(givenNoMatch());
 
     // When
@@ -129,16 +133,16 @@ class DigitalSpecimenMatchingServiceTest {
 
   private DigitalSpecimen expectedDigitalSpecimenNoMatch() {
     return new DigitalSpecimen()
-        .withOdsNormalisedPhysicalSpecimenId(NORMALISED_PHYSICAL_SPECIMEN_ID)
-        .withDwcInstitutionId(INSTITUTION_ID)
+        .withOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID)
+        .withDwcInstitutionID(INSTITUTION_ID)
         .withDwcBasisOfRecord("PreservedSpecimen")
         .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
         .withOdsSpecimenName("Aa brevis")
-        .withDwcIdentification(List.of(
-            new Identifications()
+        .withOdsHasIdentification(List.of(
+            new Identification()
                 .withDwcVerbatimIdentification("Aa brevis")
-                .withTaxonIdentifications(
-                    List.of(new TaxonIdentification().withDwcScientificName("Aa brevis")
+                .withOdsHasTaxonIdentification(
+                    List.of(new OdsHasTaxonIdentification().withDwcScientificName("Aa brevis")
                         .withDwcOrder("Asparagales")
                         .withDwcTaxonRank("species"))
                 )
@@ -148,15 +152,15 @@ class DigitalSpecimenMatchingServiceTest {
   private DigitalSpecimen expectedDigitalSpecimen() {
     DigitalSpecimen digitalSpecimen = new DigitalSpecimen();
     digitalSpecimen.setOdsSpecimenName("Aa brevis Schltr.");
-    digitalSpecimen.setOdsNormalisedPhysicalSpecimenId(NORMALISED_PHYSICAL_SPECIMEN_ID);
-    digitalSpecimen.setDwcInstitutionId(INSTITUTION_ID);
+    digitalSpecimen.setOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID);
+    digitalSpecimen.setDwcInstitutionID(INSTITUTION_ID);
     digitalSpecimen.setOdsTopicDiscipline(OdsTopicDiscipline.BOTANY);
     digitalSpecimen.setDwcBasisOfRecord("PreservedSpecimen");
-    digitalSpecimen.setDwcIdentification(List.of(
-        new Identifications()
+    digitalSpecimen.setOdsHasIdentification(List.of(
+        new Identification()
             .withDwcVerbatimIdentification("Aa brevis")
-            .withTaxonIdentifications(List.of(
-                new eu.dissco.nusearch.schema.TaxonIdentification()
+            .withOdsHasTaxonIdentification(List.of(
+                new OdsHasTaxonIdentification()
                     .withDwcTaxonID("7Q8L8")
                     .withDwcScientificName("Aa brevis Schltr.")
                     .withOdsScientificNameHtmlLabel("<i>Aa brevis</i> Schltr.")
@@ -174,13 +178,14 @@ class DigitalSpecimenMatchingServiceTest {
                     .withDwcAcceptedNameUsageID("73SWK")
                     .withDwcGenericName("Aa")
             ))));
-    digitalSpecimen.setEntityRelationship(
-        List.of(new EntityRelationships()
-            .withEntityRelationshipDate(Date.from(DATE))
-            .withObjectEntityIri("https://www.catalogueoflife.org/data/taxon/7Q8L8")
-            .withEntityRelationshipType("hasColId")
-            .withEntityRelationshipCreatorName("dissco-nusearch-service")
-            .withEntityRelationshipCreatorId("https://hdl.handle.net/TEST/123-123-123")
+    digitalSpecimen.setOdsHasEntityRelationship(
+        List.of(new EntityRelationship()
+            .withType("ods:EntityRelationship")
+            .withDwcRelationshipEstablishedDate(Date.from(DATE))
+            .withDwcRelatedResourceID("https://www.catalogueoflife.org/data/taxon/7Q8L8")
+            .withDwcRelationshipOfResource("hasColID")
+            .withDwcRelationshipAccordingTo("dissco-nusearch-service")
+            .withOdsRelationshipAccordingToID("https://hdl.handle.net/TEST/123-123-123")
         )
     );
     return digitalSpecimen;
