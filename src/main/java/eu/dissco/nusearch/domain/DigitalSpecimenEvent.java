@@ -6,6 +6,6 @@ import java.util.List;
 public record DigitalSpecimenEvent(
     List<String> enrichmentList,
     DigitalSpecimenWrapper digitalSpecimenWrapper,
-    List<JsonNode> digitalMediaObjectEvents) {
+    List<JsonNode> digitalMediaEvents) {
 
 }
