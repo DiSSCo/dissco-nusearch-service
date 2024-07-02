@@ -334,7 +334,7 @@ public class TestUtils {
   private static DigitalSpecimen givenDigitalSpecimen() {
     return new DigitalSpecimen()
         .withOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID)
-        .withDwcInstitutionID(INSTITUTION_ID)
+        .withOdsOrganisationID(INSTITUTION_ID)
         .withDwcBasisOfRecord("PreservedSpecimen")
         .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
         .withOdsSpecimenName("Aa brevis")

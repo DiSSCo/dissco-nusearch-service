@@ -8,6 +8,8 @@ import eu.dissco.nusearch.domain.Classification;
 import eu.dissco.nusearch.domain.ColNameUsageMatch2;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.ApplicationProperties;
+import eu.dissco.nusearch.schema.Agent;
+import eu.dissco.nusearch.schema.Agent.Type;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
 import eu.dissco.nusearch.schema.Identification;
 import java.time.Instant;
@@ -125,7 +127,10 @@ public class DigitalSpecimenMatchingService {
             .withDwcRelationshipEstablishedDate(Date.from(Instant.now()))
             .withDwcRelationshipOfResource("hasColID")
             .withDwcRelationshipAccordingTo(properties.getName())
-            .withOdsRelationshipAccordingToID(properties.getPid())
+            .withOdsRelationshipAccordingToAgent(new Agent()
+                .withType(Type.AS_APPLICATION)
+                .withId(properties.getPid())
+                .withSchemaName(properties.getName()))
             .withDwcRelatedResourceID(
                 "https://www.catalogueoflife.org/data/taxon/" + taxonMatchResult.getUsage()
                     .getColId()));
