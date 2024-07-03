@@ -12,6 +12,8 @@ import static org.mockito.Mockito.mockStatic;
 import eu.dissco.nusearch.domain.Classification;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.property.ApplicationProperties;
+import eu.dissco.nusearch.schema.Agent;
+import eu.dissco.nusearch.schema.Agent.Type;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
 import eu.dissco.nusearch.schema.EntityRelationship;
@@ -134,7 +136,7 @@ class DigitalSpecimenMatchingServiceTest {
   private DigitalSpecimen expectedDigitalSpecimenNoMatch() {
     return new DigitalSpecimen()
         .withOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID)
-        .withDwcInstitutionID(INSTITUTION_ID)
+        .withOdsOrganisationID(INSTITUTION_ID)
         .withDwcBasisOfRecord("PreservedSpecimen")
         .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
         .withOdsSpecimenName("Aa brevis")
@@ -153,7 +155,7 @@ class DigitalSpecimenMatchingServiceTest {
     DigitalSpecimen digitalSpecimen = new DigitalSpecimen();
     digitalSpecimen.setOdsSpecimenName("Aa brevis Schltr.");
     digitalSpecimen.setOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID);
-    digitalSpecimen.setDwcInstitutionID(INSTITUTION_ID);
+    digitalSpecimen.setOdsOrganisationID(INSTITUTION_ID);
     digitalSpecimen.setOdsTopicDiscipline(OdsTopicDiscipline.BOTANY);
     digitalSpecimen.setDwcBasisOfRecord("PreservedSpecimen");
     digitalSpecimen.setOdsHasIdentification(List.of(
@@ -185,7 +187,10 @@ class DigitalSpecimenMatchingServiceTest {
             .withDwcRelatedResourceID("https://www.catalogueoflife.org/data/taxon/7Q8L8")
             .withDwcRelationshipOfResource("hasColID")
             .withDwcRelationshipAccordingTo("dissco-nusearch-service")
-            .withOdsRelationshipAccordingToID("https://hdl.handle.net/TEST/123-123-123")
+            .withOdsRelationshipAccordingToAgent(new Agent().withType(Type.AS_APPLICATION)
+                .withId("https://hdl.handle.net/TEST/123-123-123")
+                .withSchemaName("dissco-nusearch-service")
+            )
         )
     );
     return digitalSpecimen;
