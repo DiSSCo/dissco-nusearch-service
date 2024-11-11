@@ -5,6 +5,8 @@ import static eu.dissco.nusearch.TestUtils.NORMALISED_PHYSICAL_SPECIMEN_ID;
 import static eu.dissco.nusearch.TestUtils.givenColDpNameUsageMatch;
 import static eu.dissco.nusearch.TestUtils.givenColDpNameUsageMatch2;
 import static eu.dissco.nusearch.TestUtils.givenDigitalSpecimenEvent;
+import static eu.dissco.nusearch.schema.Agent.Type.SCHEMA_SOFTWARE_APPLICATION;
+import static eu.dissco.nusearch.schema.Identifier.OdsGupriLevel.GLOBALLY_UNIQUE_STABLE_PERSISTENT_RESOLVABLE_FDO_COMPLIANT;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mockStatic;
@@ -13,12 +15,16 @@ import eu.dissco.nusearch.domain.Classification;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.property.ApplicationProperties;
 import eu.dissco.nusearch.schema.Agent;
-import eu.dissco.nusearch.schema.Agent.Type;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
 import eu.dissco.nusearch.schema.EntityRelationship;
 import eu.dissco.nusearch.schema.Identification;
-import eu.dissco.nusearch.schema.OdsHasTaxonIdentification;
+import eu.dissco.nusearch.schema.Identifier;
+import eu.dissco.nusearch.schema.Identifier.DctermsType;
+import eu.dissco.nusearch.schema.Identifier.OdsIdentifierStatus;
+import eu.dissco.nusearch.schema.OdsHasRole;
+import eu.dissco.nusearch.schema.TaxonIdentification;
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -110,7 +116,7 @@ class DigitalSpecimenMatchingServiceTest {
     // Given
     var digitalSpecimenEvent = givenDigitalSpecimenEvent();
     digitalSpecimenEvent.digitalSpecimenWrapper().attributes()
-        .getOdsHasIdentification().getFirst().getOdsHasTaxonIdentification().getFirst()
+        .getOdsHasIdentifications().getFirst().getOdsHasTaxonIdentifications().getFirst()
         .setDwcTaxonRank("species");
     var messages = List.of(digitalSpecimenEvent);
     var classification = new Classification();
@@ -140,11 +146,11 @@ class DigitalSpecimenMatchingServiceTest {
         .withDwcBasisOfRecord("PreservedSpecimen")
         .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
         .withOdsSpecimenName("Aa brevis")
-        .withOdsHasIdentification(List.of(
+        .withOdsHasIdentifications(List.of(
             new Identification()
                 .withDwcVerbatimIdentification("Aa brevis")
-                .withOdsHasTaxonIdentification(
-                    List.of(new OdsHasTaxonIdentification().withDwcScientificName("Aa brevis")
+                .withOdsHasTaxonIdentifications(
+                    List.of(new TaxonIdentification().withDwcScientificName("Aa brevis")
                         .withDwcOrder("Asparagales")
                         .withDwcTaxonRank("species"))
                 )
@@ -158,14 +164,14 @@ class DigitalSpecimenMatchingServiceTest {
     digitalSpecimen.setOdsOrganisationID(INSTITUTION_ID);
     digitalSpecimen.setOdsTopicDiscipline(OdsTopicDiscipline.BOTANY);
     digitalSpecimen.setDwcBasisOfRecord("PreservedSpecimen");
-    digitalSpecimen.setOdsHasIdentification(List.of(
+    digitalSpecimen.setOdsHasIdentifications(List.of(
         new Identification()
             .withDwcVerbatimIdentification("Aa brevis")
-            .withOdsHasTaxonIdentification(List.of(
-                new OdsHasTaxonIdentification()
-                    .withDwcTaxonID("7Q8L8")
+            .withOdsHasTaxonIdentifications(List.of(
+                new TaxonIdentification()
+                    .withDwcTaxonID("https://www.catalogueoflife.org/data/taxon/7Q8L8")
                     .withDwcScientificName("Aa brevis Schltr.")
-                    .withOdsScientificNameHtmlLabel("<i>Aa brevis</i> Schltr.")
+                    .withOdsScientificNameHTMLLabel("<i>Aa brevis</i> Schltr.")
                     .withDwcScientificNameAuthorship("Schltr.")
                     .withDwcTaxonRank("SPECIES")
                     .withDwcKingdom("Plantae")
@@ -180,16 +186,30 @@ class DigitalSpecimenMatchingServiceTest {
                     .withDwcAcceptedNameUsageID("73SWK")
                     .withDwcGenericName("Aa")
             ))));
-    digitalSpecimen.setOdsHasEntityRelationship(
+    digitalSpecimen.setOdsHasEntityRelationships(
         List.of(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(DATE))
-            .withDwcRelatedResourceID("https://www.catalogueoflife.org/data/taxon/7Q8L8")
+            .withDwcRelatedResourceID("7Q8L8")
             .withDwcRelationshipOfResource("hasColID")
-            .withDwcRelationshipAccordingTo("dissco-nusearch-service")
-            .withOdsRelationshipAccordingToAgent(new Agent().withType(Type.AS_APPLICATION)
+            .withOdsRelatedResourceURI(
+                URI.create("https://www.catalogueoflife.org/data/taxon/7Q8L8"))
+            .withOdsHasAgents(List.of(new Agent().withType(SCHEMA_SOFTWARE_APPLICATION)
                 .withId("https://hdl.handle.net/TEST/123-123-123")
                 .withSchemaName("dissco-nusearch-service")
+                .withSchemaIdentifier("https://hdl.handle.net/TEST/123-123-123")
+                .withOdsHasRoles(List.of(
+                    new OdsHasRole().withType("schema:Role").withSchemaRoleName("taxon-resolver")))
+                .withOdsHasIdentifiers(List.of(new Identifier()
+                    .withId("https://hdl.handle.net/TEST/123-123-123")
+                    .withType("ods:Identifier")
+                    .withDctermsType(DctermsType.HANDLE)
+                    .withDctermsTitle("Handle")
+                    .withOdsIsPartOfLabel(false)
+                    .withOdsGupriLevel(GLOBALLY_UNIQUE_STABLE_PERSISTENT_RESOLVABLE_FDO_COMPLIANT)
+                    .withOdsIdentifierStatus(OdsIdentifierStatus.PREFERRED)
+                    .withDctermsIdentifier("https://hdl.handle.net/TEST/123-123-123")
+                )))
             )
         )
     );

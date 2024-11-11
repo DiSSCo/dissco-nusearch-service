@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.1</version>
+    <version>3.3.5</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>eu.dissco</groupId>
@@ -24,10 +24,11 @@
     <gbif-name-parser-v1.version>3.10.2-SNAPSHOT</gbif-name-parser-v1.version>
     <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
     <lucene.version>9.9.1</lucene.version>
-    <amazon.awssdk.version>2.25.60</amazon.awssdk.version>
-    <commons-compress.version>1.26.2</commons-compress.version>
-    <swagger-annotations.version>2.2.21</swagger-annotations.version>
-    <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
+    <amazon.awssdk.version>2.29.6</amazon.awssdk.version>
+    <commons-compress.version>1.27.1</commons-compress.version>
+    <commons-io.version>2.17.0</commons-io.version>
+    <swagger-annotations.version>2.2.25</swagger-annotations.version>
+    <springdoc-openapi.version>2.6.0</springdoc-openapi.version>
     <mockito-inline.version>5.2.0</mockito-inline.version>
     <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
   </properties>
@@ -161,12 +162,19 @@
       <artifactId>swagger-annotations</artifactId>
       <version>${swagger-annotations.version}</version>
     </dependency>
-    <!-- Mitigating CVE-2024-25710 and CVE-2024-26308 from the gbif-commons -->
+    <!-- Mitigating CVE-2024-47554 and CVE-2024-26308 from the gbif-commons -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+
 
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
@@ -222,11 +230,11 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.5.0</version>
         <configuration>
           <mainClass>eu.dissco.nusearch.maven.MavenRunner</mainClass>
           <arguments>
-            <argument>https://schemas.dissco.tech/schemas/fdo-type/digital-specimen/0.3.0/digital-specimen.json</argument>
+            <argument>https://schemas.dissco.tech/schemas/fdo-type/digital-specimen/0.4.0/digital-specimen.json</argument>
           </arguments>
         </configuration>
       </plugin>
@@ -271,7 +279,7 @@
       <plugin>
         <groupId>org.jsonschema2pojo</groupId>
         <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
         <configuration>
           <sourceDirectory>${basedir}/src/main/resources/json-schema/</sourceDirectory>
           <targetPackage>eu.dissco.nusearch.schema</targetPackage>

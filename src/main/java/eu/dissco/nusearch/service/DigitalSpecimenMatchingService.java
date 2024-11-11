@@ -11,7 +11,15 @@ import eu.dissco.nusearch.property.ApplicationProperties;
 import eu.dissco.nusearch.schema.Agent;
 import eu.dissco.nusearch.schema.Agent.Type;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
+import eu.dissco.nusearch.schema.EntityRelationship;
 import eu.dissco.nusearch.schema.Identification;
+import eu.dissco.nusearch.schema.Identifier;
+import eu.dissco.nusearch.schema.Identifier.DctermsType;
+import eu.dissco.nusearch.schema.Identifier.OdsGupriLevel;
+import eu.dissco.nusearch.schema.Identifier.OdsIdentifierStatus;
+import eu.dissco.nusearch.schema.OdsHasRole;
+import eu.dissco.nusearch.schema.TaxonIdentification;
+import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,8 +36,6 @@ import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import eu.dissco.nusearch.schema.OdsHasTaxonIdentification;
-import eu.dissco.nusearch.schema.EntityRelationship;
 
 @Slf4j
 @Service
@@ -50,7 +56,7 @@ public class DigitalSpecimenMatchingService {
   private final KafkaProducerService kafkaProducerService;
   private final ApplicationProperties properties;
 
-  private static void setTaxonClassification(OdsHasTaxonIdentification taxonIdentification,
+  private static void setTaxonClassification(TaxonIdentification taxonIdentification,
       ColNameUsageMatch2 v2result) {
     for (var classification : v2result.getClassification()) {
       switch (classification.getRank()) {
@@ -96,11 +102,11 @@ public class DigitalSpecimenMatchingService {
 
   private static Identification retrieveAcceptedIdentification(
       eu.dissco.nusearch.schema.DigitalSpecimen ds) {
-    if (ds.getOdsHasIdentification() != null && !ds.getOdsHasIdentification().isEmpty()) {
-      if (ds.getOdsHasIdentification().size() == 1) {
-        return ds.getOdsHasIdentification().getFirst();
+    if (ds.getOdsHasIdentifications() != null && !ds.getOdsHasIdentifications().isEmpty()) {
+      if (ds.getOdsHasIdentifications().size() == 1) {
+        return ds.getOdsHasIdentifications().getFirst();
       }
-      for (eu.dissco.nusearch.schema.Identification identification : ds.getOdsHasIdentification()) {
+      for (eu.dissco.nusearch.schema.Identification identification : ds.getOdsHasIdentifications()) {
         if (Boolean.TRUE.equals(identification.getOdsIsVerifiedIdentification())) {
           return identification;
         }
@@ -112,31 +118,46 @@ public class DigitalSpecimenMatchingService {
   private static void setUpdatedSpecimenName(DigitalSpecimenEvent event) {
     var acceptedIdentification = retrieveAcceptedIdentification(
         event.digitalSpecimenWrapper().attributes());
-    if (acceptedIdentification != null && acceptedIdentification.getOdsHasTaxonIdentification() != null
-        && !acceptedIdentification.getOdsHasTaxonIdentification().isEmpty()) {
+    if (acceptedIdentification != null
+        && acceptedIdentification.getOdsHasTaxonIdentifications() != null
+        && !acceptedIdentification.getOdsHasTaxonIdentifications().isEmpty()) {
       event.digitalSpecimenWrapper().attributes().setOdsSpecimenName(
-          acceptedIdentification.getOdsHasTaxonIdentification().getFirst().getDwcScientificName());
+          acceptedIdentification.getOdsHasTaxonIdentifications().getFirst().getDwcScientificName());
     }
   }
 
   private void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
       DigitalSpecimenEvent event) {
-    event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationship()
+    event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
         .add(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(Instant.now()))
             .withDwcRelationshipOfResource("hasColID")
-            .withDwcRelationshipAccordingTo(properties.getName())
-            .withOdsRelationshipAccordingToAgent(new Agent()
-                .withType(Type.AS_APPLICATION)
-                .withId(properties.getPid())
-                .withSchemaName(properties.getName()))
-            .withDwcRelatedResourceID(
+            .withOdsRelatedResourceURI(URI.create(
                 "https://www.catalogueoflife.org/data/taxon/" + taxonMatchResult.getUsage()
-                    .getColId()));
+                    .getColId()))
+            .withDwcRelatedResourceID(taxonMatchResult.getUsage().getColId())
+            .withOdsHasAgents(List.of(new Agent()
+                .withType(Type.SCHEMA_SOFTWARE_APPLICATION)
+                .withId(properties.getPid())
+                .withSchemaIdentifier(properties.getPid())
+                .withSchemaName(properties.getName())
+                .withOdsHasRoles(List.of(new OdsHasRole()
+                    .withSchemaRoleName("taxon-resolver")
+                    .withType("schema:Role")))
+                .withOdsHasIdentifiers(List.of(new Identifier()
+                    .withId(properties.getPid())
+                    .withType("ods:Identifier")
+                    .withDctermsType(DctermsType.HANDLE)
+                    .withDctermsTitle("Handle")
+                    .withOdsIsPartOfLabel(false)
+                    .withOdsGupriLevel(
+                        OdsGupriLevel.GLOBALLY_UNIQUE_STABLE_PERSISTENT_RESOLVABLE_FDO_COMPLIANT)
+                    .withOdsIdentifierStatus(OdsIdentifierStatus.PREFERRED)
+                    .withDctermsIdentifier(properties.getPid()))))));
   }
 
-  private void setTaxonIdentificationValues(OdsHasTaxonIdentification taxonIdentification,
+  private void setTaxonIdentificationValues(TaxonIdentification taxonIdentification,
       ColNameUsageMatch2 v2result, String genericName) {
     try {
       var parsedName = nameParserGbifV1.parse(v2result.getUsage().getLabel());
@@ -145,17 +166,17 @@ public class DigitalSpecimenMatchingService {
       taxonIdentification.setDwcInfragenericEpithet(parsedName.getInfraGeneric());
       taxonIdentification.setDwcInfraspecificEpithet(parsedName.getInfraSpecificEpithet());
       taxonIdentification.setDwcSpecificEpithet(parsedName.getSpecificEpithet());
-      taxonIdentification.setDwcNameAccordingTo(parsedName.getSensu());
       taxonIdentification.setDwcGenericName(genericName);
     } catch (UnparsableException e) {
       log.error("Unable to fill in fields due to unparsable name: {}",
           v2result.getUsage().getLabel(), e);
     }
     setTaxonClassification(taxonIdentification, v2result);
-    taxonIdentification.setDwcTaxonID(v2result.getUsage().getColId());
+    taxonIdentification.setDwcTaxonID(
+        "https://www.catalogueoflife.org/data/taxon/" + v2result.getUsage().getColId());
     taxonIdentification.setDwcTaxonomicStatus(v2result.getUsage().getStatus().toString());
     taxonIdentification.setDwcScientificName(v2result.getUsage().getLabel());
-    taxonIdentification.setOdsScientificNameHtmlLabel(v2result.getUsage().getLabelHtml());
+    taxonIdentification.setOdsScientificNameHTMLLabel(v2result.getUsage().getLabelHtml());
     taxonIdentification.setDwcScientificNameAuthorship(v2result.getUsage().getAuthorship());
     if (v2result.getAcceptedUsage() != null) {
       taxonIdentification.setDwcAcceptedNameUsage(v2result.getAcceptedUsage().getLabel());
@@ -178,7 +199,7 @@ public class DigitalSpecimenMatchingService {
   }
 
   private void handleEvent(DigitalSpecimenEvent event) {
-    var identifications = event.digitalSpecimenWrapper().attributes().getOdsHasIdentification();
+    var identifications = event.digitalSpecimenWrapper().attributes().getOdsHasIdentifications();
     for (Identification identification : identifications) {
       log.debug("Handling taxon: {}", identification);
       var taxonMatchResults = handleIdentification(identification);
@@ -195,10 +216,11 @@ public class DigitalSpecimenMatchingService {
     var ds = event.digitalSpecimenWrapper().attributes();
     var basisOfRecord = ds.getDwcBasisOfRecord();
     var acceptedIdentification = retrieveAcceptedIdentification(ds);
-    if (acceptedIdentification != null && acceptedIdentification.getOdsHasTaxonIdentification() != null
-        && !acceptedIdentification.getOdsHasTaxonIdentification().isEmpty()) {
+    if (acceptedIdentification != null
+        && acceptedIdentification.getOdsHasTaxonIdentifications() != null
+        && !acceptedIdentification.getOdsHasTaxonIdentifications().isEmpty()) {
       ds.setOdsTopicDiscipline(getDiscipline(basisOfRecord,
-          acceptedIdentification.getOdsHasTaxonIdentification().getFirst().getDwcKingdom()));
+          acceptedIdentification.getOdsHasTaxonIdentifications().getFirst().getDwcKingdom()));
     } else {
       ds.setOdsTopicDiscipline(getDiscipline(basisOfRecord, null));
     }
@@ -238,10 +260,10 @@ public class DigitalSpecimenMatchingService {
   }
 
   private List<ColNameUsageMatch2> handleIdentification(Identification identification) {
-    var taxonIdentifications = identification.getOdsHasTaxonIdentification();
+    var taxonIdentifications = identification.getOdsHasTaxonIdentifications();
     var verbatimIdentification = new StringBuilder();
     var taxonMatchResults = new ArrayList<ColNameUsageMatch2>();
-    for (OdsHasTaxonIdentification taxonIdentification : taxonIdentifications) {
+    for (TaxonIdentification taxonIdentification : taxonIdentifications) {
       log.debug("Handling taxon identification: {}", taxonIdentification);
       if (!verbatimIdentification.isEmpty()) {
         verbatimIdentification.append(" | ");
@@ -258,7 +280,7 @@ public class DigitalSpecimenMatchingService {
     return taxonMatchResults;
   }
 
-  private ColNameUsageMatch2 matchTaxon(OdsHasTaxonIdentification taxonIdentification) {
+  private ColNameUsageMatch2 matchTaxon(TaxonIdentification taxonIdentification) {
     var classification = retrieveClassification(taxonIdentification);
     var resultMatch =
         nubMatchingService.match2(null, taxonIdentification.getDwcScientificName(),
@@ -277,7 +299,7 @@ public class DigitalSpecimenMatchingService {
     return result;
   }
 
-  private Classification retrieveClassification(OdsHasTaxonIdentification taxonIdentification) {
+  private Classification retrieveClassification(TaxonIdentification taxonIdentification) {
     var classification = new Classification();
     classification.setKingdom(taxonIdentification.getDwcKingdom());
     classification.setPhylum(taxonIdentification.getDwcPhylum());
