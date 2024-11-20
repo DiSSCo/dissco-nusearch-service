@@ -169,6 +169,7 @@ class DigitalSpecimenMatchingServiceTest {
             .withDwcVerbatimIdentification("Aa brevis")
             .withOdsHasTaxonIdentifications(List.of(
                 new TaxonIdentification()
+                    .withId("https://www.catalogueoflife.org/data/taxon/7Q8L8")
                     .withDwcTaxonID("https://www.catalogueoflife.org/data/taxon/7Q8L8")
                     .withDwcScientificName("Aa brevis Schltr.")
                     .withOdsScientificNameHTMLLabel("<i>Aa brevis</i> Schltr.")
@@ -180,6 +181,7 @@ class DigitalSpecimenMatchingServiceTest {
                     .withDwcFamily("Orchidaceae")
                     .withDwcOrder("Asparagales")
                     .withDwcGenus("Myrosmodes Rchb.f.")
+                    .withOdsGenusHTMLLabel("<i>Myrosmodes</i> Rchb.f.")
                     .withDwcSpecificEpithet("brevis")
                     .withDwcTaxonomicStatus("SYNONYM")
                     .withDwcAcceptedNameUsage("Myrosmodes brevis (Schltr.) Garay")
