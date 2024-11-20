@@ -82,6 +82,7 @@ public class DigitalSpecimenMatchingService {
           taxonIdentification.setDwcSubfamily(classification.getLabel());
           break;
         case "genus":
+          taxonIdentification.setOdsGenusHTMLLabel(classification.getLabelHtml());
           taxonIdentification.setDwcGenus(classification.getLabel());
           break;
         case "subgenus":
@@ -174,6 +175,7 @@ public class DigitalSpecimenMatchingService {
     setTaxonClassification(taxonIdentification, v2result);
     taxonIdentification.setDwcTaxonID(
         "https://www.catalogueoflife.org/data/taxon/" + v2result.getUsage().getColId());
+    taxonIdentification.setId("https://www.catalogueoflife.org/data/taxon/" + v2result.getUsage().getColId());
     taxonIdentification.setDwcTaxonomicStatus(v2result.getUsage().getStatus().toString());
     taxonIdentification.setDwcScientificName(v2result.getUsage().getLabel());
     taxonIdentification.setOdsScientificNameHTMLLabel(v2result.getUsage().getLabelHtml());
