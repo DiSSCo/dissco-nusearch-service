@@ -287,6 +287,7 @@
           <includeConstructors>true</includeConstructors>
           <includeDynamicBuilders>true</includeDynamicBuilders>
           <includeAdditionalProperties>false</includeAdditionalProperties>
+          <inclusionLevel>NON_EMPTY</inclusionLevel>
         </configuration>
         <executions>
           <execution>
