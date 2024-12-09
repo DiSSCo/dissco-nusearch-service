@@ -159,7 +159,7 @@ class DigitalSpecimenMatchingServiceTest {
 
   private DigitalSpecimen expectedDigitalSpecimen() {
     DigitalSpecimen digitalSpecimen = new DigitalSpecimen();
-    digitalSpecimen.setOdsSpecimenName("Aa brevis Schltr.");
+    digitalSpecimen.setOdsSpecimenName("Myrosmodes brevis (Schltr.) Garay");
     digitalSpecimen.setOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID);
     digitalSpecimen.setOdsOrganisationID(INSTITUTION_ID);
     digitalSpecimen.setOdsTopicDiscipline(OdsTopicDiscipline.BOTANY);
@@ -169,11 +169,11 @@ class DigitalSpecimenMatchingServiceTest {
             .withDwcVerbatimIdentification("Aa brevis")
             .withOdsHasTaxonIdentifications(List.of(
                 new TaxonIdentification()
-                    .withId("https://www.catalogueoflife.org/data/taxon/7Q8L8")
-                    .withDwcTaxonID("https://www.catalogueoflife.org/data/taxon/7Q8L8")
-                    .withDwcScientificName("Aa brevis Schltr.")
-                    .withOdsScientificNameHTMLLabel("<i>Aa brevis</i> Schltr.")
-                    .withDwcScientificNameAuthorship("Schltr.")
+                    .withId("https://www.catalogueoflife.org/data/taxon/73SWK")
+                    .withDwcTaxonID("https://www.catalogueoflife.org/data/taxon/73SWK")
+                    .withDwcScientificName("Myrosmodes brevis (Schltr.) Garay")
+                    .withOdsScientificNameHTMLLabel("<i>Myrosmodes brevis</i> (Schltr.) Garay")
+                    .withDwcScientificNameAuthorship("(Schltr.) Garay")
                     .withDwcTaxonRank("SPECIES")
                     .withDwcKingdom("Plantae")
                     .withDwcPhylum("Tracheophyta")
@@ -183,19 +183,17 @@ class DigitalSpecimenMatchingServiceTest {
                     .withDwcGenus("Myrosmodes Rchb.f.")
                     .withOdsGenusHTMLLabel("<i>Myrosmodes</i> Rchb.f.")
                     .withDwcSpecificEpithet("brevis")
-                    .withDwcTaxonomicStatus("SYNONYM")
-                    .withDwcAcceptedNameUsage("Myrosmodes brevis (Schltr.) Garay")
-                    .withDwcAcceptedNameUsageID("73SWK")
+                    .withDwcTaxonomicStatus("ACCEPTED")
                     .withDwcGenericName("Aa")
             ))));
     digitalSpecimen.setOdsHasEntityRelationships(
         List.of(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(DATE))
-            .withDwcRelatedResourceID("7Q8L8")
+            .withDwcRelatedResourceID("73SWK")
             .withDwcRelationshipOfResource("hasColID")
             .withOdsRelatedResourceURI(
-                URI.create("https://www.catalogueoflife.org/data/taxon/7Q8L8"))
+                URI.create("https://www.catalogueoflife.org/data/taxon/73SWK"))
             .withOdsHasAgents(List.of(new Agent().withType(SCHEMA_SOFTWARE_APPLICATION)
                 .withId("https://hdl.handle.net/TEST/123-123-123")
                 .withSchemaName("dissco-nusearch-service")

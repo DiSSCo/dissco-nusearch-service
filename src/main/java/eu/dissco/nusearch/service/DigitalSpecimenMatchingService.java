@@ -5,6 +5,7 @@ import static eu.dissco.nusearch.Profiles.STANDALONE;
 
 import com.google.common.base.Strings;
 import eu.dissco.nusearch.domain.Classification;
+import eu.dissco.nusearch.domain.ColDpRankedName;
 import eu.dissco.nusearch.domain.ColNameUsageMatch2;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.ApplicationProperties;
@@ -43,6 +44,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class DigitalSpecimenMatchingService {
 
+  private static final String COL_URI = "https://www.catalogueoflife.org/data/taxon/";
   private static final List<String> FOSSIL_BASIS_OF_RECORD = List.of("FOSSILSPECIMEN",
       "FOSSIL SPECIMEN", "FOSSIL");
   private static final List<String> EXTRATERRESTRIAL_BASIS_OF_RECORD = List.of("METEORITE",
@@ -129,15 +131,14 @@ public class DigitalSpecimenMatchingService {
 
   private void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
       DigitalSpecimenEvent event) {
+    var rankedName = determineAcceptedUsage(taxonMatchResult);
     event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
         .add(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(Instant.now()))
             .withDwcRelationshipOfResource("hasColID")
-            .withOdsRelatedResourceURI(URI.create(
-                "https://www.catalogueoflife.org/data/taxon/" + taxonMatchResult.getUsage()
-                    .getColId()))
-            .withDwcRelatedResourceID(taxonMatchResult.getUsage().getColId())
+            .withOdsRelatedResourceURI(URI.create(COL_URI + rankedName.getColId()))
+            .withDwcRelatedResourceID(rankedName.getColId())
             .withOdsHasAgents(List.of(new Agent()
                 .withType(Type.SCHEMA_SOFTWARE_APPLICATION)
                 .withId(properties.getPid())
@@ -160,8 +161,9 @@ public class DigitalSpecimenMatchingService {
 
   private void setTaxonIdentificationValues(TaxonIdentification taxonIdentification,
       ColNameUsageMatch2 v2result, String genericName) {
+    var rankedName = determineAcceptedUsage(v2result);
     try {
-      var parsedName = nameParserGbifV1.parse(v2result.getUsage().getLabel());
+      var parsedName = nameParserGbifV1.parse(rankedName.getLabel());
       taxonIdentification.setDwcNamePublishedInYear(parsedName.getYear());
       taxonIdentification.setDwcCultivarEpithet(parsedName.getCultivarEpithet());
       taxonIdentification.setDwcInfragenericEpithet(parsedName.getInfraGeneric());
@@ -169,22 +171,24 @@ public class DigitalSpecimenMatchingService {
       taxonIdentification.setDwcSpecificEpithet(parsedName.getSpecificEpithet());
       taxonIdentification.setDwcGenericName(genericName);
     } catch (UnparsableException e) {
-      log.error("Unable to fill in fields due to unparsable name: {}",
-          v2result.getUsage().getLabel(), e);
+      log.error("Unable to fill in fields due to unparsable name: {}", rankedName.getLabel(), e);
     }
     setTaxonClassification(taxonIdentification, v2result);
-    taxonIdentification.setDwcTaxonID(
-        "https://www.catalogueoflife.org/data/taxon/" + v2result.getUsage().getColId());
-    taxonIdentification.setId("https://www.catalogueoflife.org/data/taxon/" + v2result.getUsage().getColId());
-    taxonIdentification.setDwcTaxonomicStatus(v2result.getUsage().getStatus().toString());
-    taxonIdentification.setDwcScientificName(v2result.getUsage().getLabel());
-    taxonIdentification.setOdsScientificNameHTMLLabel(v2result.getUsage().getLabelHtml());
-    taxonIdentification.setDwcScientificNameAuthorship(v2result.getUsage().getAuthorship());
+    taxonIdentification.setDwcTaxonID(COL_URI + rankedName.getColId());
+    taxonIdentification.setId(COL_URI + rankedName.getColId());
+    taxonIdentification.setDwcTaxonomicStatus(rankedName.getStatus().toString());
+    taxonIdentification.setDwcScientificName(rankedName.getLabel());
+    taxonIdentification.setOdsScientificNameHTMLLabel(rankedName.getLabelHtml());
+    taxonIdentification.setDwcScientificNameAuthorship(rankedName.getAuthorship());
+    taxonIdentification.setDwcTaxonRank(rankedName.getRank());
+  }
+
+  private ColDpRankedName determineAcceptedUsage(ColNameUsageMatch2 v2result) {
     if (v2result.getAcceptedUsage() != null) {
-      taxonIdentification.setDwcAcceptedNameUsage(v2result.getAcceptedUsage().getLabel());
-      taxonIdentification.setDwcAcceptedNameUsageID(v2result.getAcceptedUsage().getColId());
+      return v2result.getAcceptedUsage();
+    } else {
+      return v2result.getUsage();
     }
-    taxonIdentification.setDwcTaxonRank(v2result.getUsage().getRank());
   }
 
   public void handleMessages(List<DigitalSpecimenEvent> events) {
@@ -270,8 +274,12 @@ public class DigitalSpecimenMatchingService {
       if (!verbatimIdentification.isEmpty()) {
         verbatimIdentification.append(" | ");
       }
-      verbatimIdentification.append(taxonIdentification.getDwcScientificName());
-      var matchResult = matchTaxon(taxonIdentification);
+      var specimenName = taxonIdentification.getDwcScientificName();
+      if (specimenName == null || specimenName.isEmpty()) {
+        specimenName = taxonIdentification.getDwcAcceptedNameUsage();
+      }
+      verbatimIdentification.append(specimenName);
+      var matchResult = matchTaxon(taxonIdentification, specimenName);
       if (matchResult != null) {
         taxonMatchResults.add(matchResult);
       }
@@ -282,12 +290,15 @@ public class DigitalSpecimenMatchingService {
     return taxonMatchResults;
   }
 
-  private ColNameUsageMatch2 matchTaxon(TaxonIdentification taxonIdentification) {
+  private ColNameUsageMatch2 matchTaxon(TaxonIdentification taxonIdentification,
+      String specimenName) {
     var classification = retrieveClassification(taxonIdentification);
     var resultMatch =
-        nubMatchingService.match2(null, taxonIdentification.getDwcScientificName(),
+        nubMatchingService.match2(null,
+            specimenName,
             taxonIdentification.getDwcScientificNameAuthorship(),
-            taxonIdentification.getDwcGenericName(), taxonIdentification.getDwcSpecificEpithet(),
+            taxonIdentification.getDwcGenericName(),
+            taxonIdentification.getDwcSpecificEpithet(),
             taxonIdentification.getDwcInfraspecificEpithet(),
             parseRank(taxonIdentification.getDwcTaxonRank()),
             classification, null, false, true);
