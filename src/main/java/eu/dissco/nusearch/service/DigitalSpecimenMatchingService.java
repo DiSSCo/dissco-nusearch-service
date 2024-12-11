@@ -150,8 +150,8 @@ public class DigitalSpecimenMatchingService {
                 .withOdsHasIdentifiers(List.of(new Identifier()
                     .withId(properties.getPid())
                     .withType("ods:Identifier")
-                    .withDctermsType(DctermsType.HANDLE)
-                    .withDctermsTitle("Handle")
+                    .withDctermsType(DctermsType.DOI)
+                    .withDctermsTitle("DOI")
                     .withOdsIsPartOfLabel(false)
                     .withOdsGupriLevel(
                         OdsGupriLevel.GLOBALLY_UNIQUE_STABLE_PERSISTENT_RESOLVABLE_FDO_COMPLIANT)
