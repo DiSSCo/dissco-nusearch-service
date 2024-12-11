@@ -12,10 +12,10 @@ import org.springframework.validation.annotation.Validated;
 public class ApplicationProperties {
 
   @NotBlank
-  private String name = "dissco-nusearch-service";
+  private String name = "DiSSCo Name Usage Search Service";
 
   @NotBlank
-  private String pid = "https://hdl.handle.net/TEST/123-123-123";
+  private String pid = "https://doi.org/10.5281/zenodo.14380476";
 
   @Positive
   private int nameParserMaxThreads = 1000;
