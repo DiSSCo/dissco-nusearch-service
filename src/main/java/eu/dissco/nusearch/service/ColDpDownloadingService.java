@@ -168,7 +168,6 @@ public class ColDpDownloadingService {
     var json = mapper.createObjectNode();
     json.put("format", "coldp");
     json.put("synonyms", colDownloadProperties.isSynonyms());
-    json.put("extinct", colDownloadProperties.isExtinct());
     json.put("extended", colDownloadProperties.isExtended());
     return json;
   }

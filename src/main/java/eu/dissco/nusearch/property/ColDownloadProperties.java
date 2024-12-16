@@ -14,8 +14,6 @@ public class ColDownloadProperties {
 
   private boolean extended = true;
 
-  private boolean extinct = true;
-
   @Positive
   private int exportStatusRetryTime = 500;
 
