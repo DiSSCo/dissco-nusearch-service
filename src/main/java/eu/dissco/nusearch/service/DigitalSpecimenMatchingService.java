@@ -136,7 +136,7 @@ public class DigitalSpecimenMatchingService {
         .add(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(Instant.now()))
-            .withDwcRelationshipOfResource("hasColID")
+            .withDwcRelationshipOfResource("hasCOLID")
             .withOdsRelatedResourceURI(URI.create(COL_URI + rankedName.getColId()))
             .withDwcRelatedResourceID(rankedName.getColId())
             .withOdsHasAgents(List.of(new Agent()
