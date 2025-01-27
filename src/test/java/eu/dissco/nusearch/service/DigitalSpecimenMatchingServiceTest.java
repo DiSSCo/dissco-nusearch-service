@@ -191,7 +191,7 @@ class DigitalSpecimenMatchingServiceTest {
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(DATE))
             .withDwcRelatedResourceID("73SWK")
-            .withDwcRelationshipOfResource("hasColID")
+            .withDwcRelationshipOfResource("hasCOLID")
             .withOdsRelatedResourceURI(
                 URI.create("https://www.catalogueoflife.org/data/taxon/73SWK"))
             .withOdsHasAgents(List.of(new Agent().withType(SCHEMA_SOFTWARE_APPLICATION)
