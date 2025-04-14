@@ -2,27 +2,24 @@
 
 ## DiSSCo
 The DiSSCo implementation of the Name Usage Searcher.
-It connects to a Kafka queue where it will consume DigitalSpecimen events.
+It connects to a RabbitMQ queue where it will consume DigitalSpecimen events.
 It will then retrieve the scientific name and classification from the event and query the Name Usage Searcher for the matching records.
 If a match is found it will override the taxonomic information in the DigitalSpecimen event with the information from the Name Usage Searcher.
 The original scientificName will be stored in the verbatimIdentification, seperated by a pipe `|` if there were multiple taxonIdentifications.
 The link to the Catalogue of Life will be added as a entityRelationship to the DigitalSpecimen event.
 Last we will update the specimenName and the topicDiscipline according to the taxonomic identification.
-The updated event will be sent to a new Kafka topic.
+The updated event will be sent to a new RabbitMQ topic for further processing.
 
-The best way is to first generate an index and store it on S3 then run the S3 Resolver profile to deploy the APIs/Kafka.
+The best way is to first generate an index and store it on S3 then run the S3 Resolver profile to deploy the APIs/RabbitMQ.
 
 ## DiSSCo specific properties
 ```
-# Kafka consumer properties
-kafka.consumer.host=# The host of the kafka consumer
-kafka.consumer.topic=# The topic name which it needs to listen to
-kafka.consumer.group=# The group name of the kafka consumer, defaults to "group"
-kafka.consumer.batch-size=# The batch size of the kafka consumer, defaults to 500
-
-# Kafka producer properties
-kafka.publisher.host=# The host of the kafka producer
-kafka.publisher.topic=# The topic name which it needs to publish to, defaults to "digital-specimen"
+# RabbitMQ properties
+rabbitmq.queue-name=# The name of the RabbitMQ queue from which the nu-search-service will consume
+rabbitmq.dlq-exchange-name=# The name of the RabbitMQ dead letter exchange to which nu-search-service will publish failed messages
+rabbitmq.dlq-routing-key-name=# The routing key name for the RabbitMQ dead letter exchange
+rabbitmq.exchange-name=# The name of the RabbitMQ exchange to which the nu-search-service will publish processed messages
+rabbitmq.routing-key-name=# The routing key name for RabbitMQ to which the nu-search-service will publish processed messages
 ```
 
 # Original README

@@ -24,8 +24,8 @@ public class TestUtils {
 
   public static final ObjectMapper MAPPER = new ObjectMapper();
 
-  public static String INSTITUTION_ID = "https://ror.org/02y22ws83";
-  public static String NORMALISED_PHYSICAL_SPECIMEN_ID = "http://coldb.mnhn.fr/catalognumber/mnhn/ec/ec10867";
+  public static final String INSTITUTION_ID = "https://ror.org/02y22ws83";
+  public static final String NORMALISED_PHYSICAL_SPECIMEN_ID = "http://coldb.mnhn.fr/catalognumber/mnhn/ec/ec10867";
 
 
   public static ColDpNameUsageMatch givenColDpNameUsageMatch() {
