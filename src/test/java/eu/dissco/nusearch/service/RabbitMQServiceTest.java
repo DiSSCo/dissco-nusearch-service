@@ -91,7 +91,7 @@ class RabbitMQServiceTest {
   }
 
   @Test
-  void testInvalidReceiveMessage() {
+  void testInvalidReceiveMessage() throws InterruptedException {
     // Given
     var message = givenInvalidMessage();
 
@@ -99,13 +99,14 @@ class RabbitMQServiceTest {
     rabbitMQService.getMessages(List.of(message));
 
     // Then
+    Thread.sleep(100); // Avoid race condition between rabbitMQ and test, give RabbitMQ 100 milisec to process
     var dlqMessage = rabbitTemplate.receive("nu-search-queue-dlq");
     assertThat(new String(dlqMessage.getBody())).isEqualTo(message);
     then(matchingService).should().handleMessages(List.of());
   }
 
   @Test
-  void testPublishMessage() throws JsonProcessingException {
+  void testPublishMessage() throws JsonProcessingException, InterruptedException {
     // Given
     var event = MAPPER.readValue(givenMessage(), DigitalSpecimenEvent.class);
 
@@ -113,6 +114,7 @@ class RabbitMQServiceTest {
     rabbitMQService.sendMessage(event);
 
     // Then
+    Thread.sleep(100); // Avoid race condition between rabbitMQ and test, give RabbitMQ 100 milisec to process
     var result = rabbitTemplate.receive("digital-specimen-queue");
     assertThat(
         MAPPER.readValue(new String(result.getBody()), DigitalSpecimenEvent.class)).isEqualTo(

@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version>
+    <version>3.4.4</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>eu.dissco</groupId>
@@ -162,12 +162,6 @@
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations</artifactId>
       <version>${swagger-annotations.version}</version>
-    </dependency>
-    <!-- Mitigating CVE-2024-47554 and CVE-2024-26308 from the gbif-commons -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>${commons-compress.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
