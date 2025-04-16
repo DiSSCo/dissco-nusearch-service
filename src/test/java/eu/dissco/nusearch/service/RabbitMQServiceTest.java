@@ -9,7 +9,8 @@ import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.RabbitMQProperties;
 import java.io.IOException;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,57 +25,52 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @ExtendWith(MockitoExtension.class)
 class RabbitMQServiceTest {
 
-  private RabbitMQContainer container;
-  private RabbitMQService rabbitMQService;
-  private RabbitTemplate rabbitTemplate;
+  private static RabbitMQContainer container;
+  private static RabbitMQService rabbitMQService;
+  private static RabbitTemplate rabbitTemplate;
   @Mock
   private DigitalSpecimenMatchingService matchingService;
 
-  @BeforeEach
-  void setup() throws IOException, InterruptedException {
+  @BeforeAll
+  static void setupContainer() throws IOException, InterruptedException {
     container = new RabbitMQContainer("rabbitmq:4.0.8-management-alpine");
     container.start();
     // Declare nu-search exchange, queue and binding
-    declareExchange("nu-search-exchange");
-    declareQueue("nu-search-queue");
-    declareBinding("nu-search-exchange", "nu-search-queue", "nu-search");
+    declareRabbitResources("nu-search-exchange", "nu-search-queue", "nu-search");
     // Declare dlq exchange, queue and binding
-    declareExchange("nu-search-exchange-dlq");
-    declareQueue("nu-search-queue-dlq");
-    declareBinding("nu-search-exchange-dlq", "nu-search-queue-dlq", "nu-search-dlq");
+    declareRabbitResources("nu-search-exchange-dlq", "nu-search-queue-dlq", "nu-search-dlq");
     // Declare digital specimen exchange, queue and binding
-    declareExchange("digital-specimen-exchange");
-    declareQueue("digital-specimen-queue");
-    declareBinding("digital-specimen-exchange", "digital-specimen-queue", "digital-specimen");
+    declareRabbitResources("digital-specimen-exchange", "digital-specimen-queue",
+        "digital-specimen");
 
     CachingConnectionFactory factory = new CachingConnectionFactory(container.getHost());
     factory.setPort(container.getAmqpPort());
     factory.setUsername(container.getAdminUsername());
     factory.setPassword(container.getAdminPassword());
     rabbitTemplate = new RabbitTemplate(factory);
-    rabbitMQService = new RabbitMQService(MAPPER, rabbitTemplate, matchingService,
-        new RabbitMQProperties());
+    rabbitTemplate.setReceiveTimeout(100L);
   }
 
-  private void declareBinding(String exchangeName, String queueName, String routingKey)
+  private static void declareRabbitResources(String exchangeName, String queueName,
+      String routingKey)
       throws IOException, InterruptedException {
+    container.execInContainer("rabbitmqadmin", "declare", "exchange", "name=" + exchangeName,
+        "type=direct", "durable=true");
+    container.execInContainer("rabbitmqadmin", "declare", "queue", "name=" + queueName,
+        "queue_type=quorum", "durable=true");
     container.execInContainer("rabbitmqadmin", "declare", "binding", "source=" + exchangeName,
         "destination_type=queue", "destination=" + queueName, "routing_key=" + routingKey);
   }
 
-  private void declareQueue(String queueName) throws IOException, InterruptedException {
-    container.execInContainer("rabbitmqadmin", "declare", "queue", "name=" + queueName,
-        "queue_type=quorum", "durable=true");
-  }
-
-  private void declareExchange(String exchangeName) throws IOException, InterruptedException {
-    container.execInContainer("rabbitmqadmin", "declare", "exchange", "name=" + exchangeName,
-        "type=direct", "durable=true");
-  }
-
-  @AfterEach
-  void shutdown() {
+  @AfterAll
+  static void shutdownContainer() {
     container.stop();
+  }
+
+  @BeforeEach
+  void setup() {
+    rabbitMQService = new RabbitMQService(MAPPER, rabbitTemplate, matchingService,
+        new RabbitMQProperties());
   }
 
   @Test
@@ -91,7 +87,7 @@ class RabbitMQServiceTest {
   }
 
   @Test
-  void testInvalidReceiveMessage() throws InterruptedException {
+  void testInvalidReceiveMessage() {
     // Given
     var message = givenInvalidMessage();
 
@@ -99,14 +95,13 @@ class RabbitMQServiceTest {
     rabbitMQService.getMessages(List.of(message));
 
     // Then
-    Thread.sleep(100); // Avoid race condition between rabbitMQ and test, give RabbitMQ 100 milisec to process
     var dlqMessage = rabbitTemplate.receive("nu-search-queue-dlq");
     assertThat(new String(dlqMessage.getBody())).isEqualTo(message);
     then(matchingService).should().handleMessages(List.of());
   }
 
   @Test
-  void testPublishMessage() throws JsonProcessingException, InterruptedException {
+  void testPublishMessage() throws JsonProcessingException {
     // Given
     var event = MAPPER.readValue(givenMessage(), DigitalSpecimenEvent.class);
 
@@ -114,7 +109,6 @@ class RabbitMQServiceTest {
     rabbitMQService.sendMessage(event);
 
     // Then
-    Thread.sleep(100); // Avoid race condition between rabbitMQ and test, give RabbitMQ 100 milisec to process
     var result = rabbitTemplate.receive("digital-specimen-queue");
     assertThat(
         MAPPER.readValue(new String(result.getBody()), DigitalSpecimenEvent.class)).isEqualTo(

@@ -1,6 +1,7 @@
 package eu.dissco.nusearch.configuration;
 
 import eu.dissco.nusearch.component.MessageCompressionComponent;
+import eu.dissco.nusearch.property.RabbitMQProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfiguration {
 
   private final MessageCompressionComponent compressedMessageConverter;
+  private final RabbitMQProperties rabbitMQProperties;
 
   @Bean
   public SimpleRabbitListenerContainerFactory consumerBatchContainerFactory(
@@ -20,7 +22,7 @@ public class RabbitMQConfiguration {
     SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
     factory.setConnectionFactory(connectionFactory);
     factory.setBatchListener(true); // configures a BatchMessageListenerAdapter
-    factory.setBatchSize(100);
+    factory.setBatchSize(rabbitMQProperties.getBatchSize());
     factory.setConsumerBatchEnabled(true);
     factory.setMessageConverter(compressedMessageConverter);
     return factory;
