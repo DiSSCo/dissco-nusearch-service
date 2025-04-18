@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 @ConfigurationProperties(prefix = "rabbitmq")
-public class RabbitMQProperties {
+public class RabbitMqProperties {
 
   @Positive
   private int batchSize = 500;

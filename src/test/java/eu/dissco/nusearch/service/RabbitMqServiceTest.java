@@ -6,7 +6,7 @@ import static org.mockito.BDDMockito.then;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
-import eu.dissco.nusearch.property.RabbitMQProperties;
+import eu.dissco.nusearch.property.RabbitMqProperties;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -23,10 +23,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
-class RabbitMQServiceTest {
+class RabbitMqServiceTest {
 
   private static RabbitMQContainer container;
-  private static RabbitMQService rabbitMQService;
+  private static RabbitMqService rabbitMqService;
   private static RabbitTemplate rabbitTemplate;
   @Mock
   private DigitalSpecimenMatchingService matchingService;
@@ -69,8 +69,8 @@ class RabbitMQServiceTest {
 
   @BeforeEach
   void setup() {
-    rabbitMQService = new RabbitMQService(MAPPER, rabbitTemplate, matchingService,
-        new RabbitMQProperties());
+    rabbitMqService = new RabbitMqService(MAPPER, rabbitTemplate, matchingService,
+        new RabbitMqProperties());
   }
 
   @Test
@@ -79,7 +79,7 @@ class RabbitMQServiceTest {
     var message = givenMessage();
 
     // When
-    rabbitMQService.getMessages(List.of(message));
+    rabbitMqService.getMessages(List.of(message));
 
     // Then
     then(matchingService).should()
@@ -92,7 +92,7 @@ class RabbitMQServiceTest {
     var message = givenInvalidMessage();
 
     // When
-    rabbitMQService.getMessages(List.of(message));
+    rabbitMqService.getMessages(List.of(message));
 
     // Then
     var dlqMessage = rabbitTemplate.receive("nu-search-queue-dlq");
@@ -106,7 +106,7 @@ class RabbitMQServiceTest {
     var event = MAPPER.readValue(givenMessage(), DigitalSpecimenEvent.class);
 
     // When
-    rabbitMQService.sendMessage(event);
+    rabbitMqService.sendMessage(event);
 
     // Then
     var result = rabbitTemplate.receive("digital-specimen-queue");

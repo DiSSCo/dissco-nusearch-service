@@ -55,7 +55,7 @@ class DigitalSpecimenMatchingServiceTest {
   @Mock
   private NubMatchingService nubMatchingService;
   @Mock
-  private RabbitMQService rabbitMQService;
+  private RabbitMqService rabbitMqService;
   private DigitalSpecimenMatchingService service;
   private MockedStatic<Instant> mockedInstant;
   private MockedStatic<Clock> mockedClock;
@@ -77,7 +77,7 @@ class DigitalSpecimenMatchingServiceTest {
   @BeforeEach
   void setup() {
     this.service = new DigitalSpecimenMatchingService(nubMatchingService, executorService,
-        nameParserGbifV1, rabbitMQService, properties);
+        nameParserGbifV1, rabbitMqService, properties);
     Clock clock = Clock.fixed(DATE, ZoneOffset.UTC);
     Instant instant = Instant.now(clock);
     mockedInstant = mockStatic(Instant.class);
@@ -107,7 +107,7 @@ class DigitalSpecimenMatchingServiceTest {
     service.handleMessages(messages);
 
     // Then
-    then(rabbitMQService).should()
+    then(rabbitMqService).should()
         .sendMessage(givenDigitalSpecimenEvent(expectedDigitalSpecimen()));
   }
 
@@ -129,7 +129,7 @@ class DigitalSpecimenMatchingServiceTest {
     service.handleMessages(messages);
 
     // Then
-    then(rabbitMQService).should()
+    then(rabbitMqService).should()
         .sendMessage(givenDigitalSpecimenEvent(expectedDigitalSpecimenNoMatch()));
   }
 

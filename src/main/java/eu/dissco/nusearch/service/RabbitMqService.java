@@ -6,7 +6,7 @@ import static eu.dissco.nusearch.Profiles.STANDALONE;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
-import eu.dissco.nusearch.property.RabbitMQProperties;
+import eu.dissco.nusearch.property.RabbitMqProperties;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -22,12 +22,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile({STANDALONE, S3_RESOLVER})
 @AllArgsConstructor
-public class RabbitMQService {
+public class RabbitMqService {
 
   private final ObjectMapper mapper;
   private final RabbitTemplate rabbitTemplate;
   private final DigitalSpecimenMatchingService service;
-  private final RabbitMQProperties rabbitMQProperties;
+  private final RabbitMqProperties rabbitMqProperties;
 
   @RabbitListener(queues = "#{rabbitMQProperties.queueName}", containerFactory = "consumerBatchContainerFactory")
   public void getMessages(@Payload List<String> messages) {
@@ -45,15 +45,15 @@ public class RabbitMQService {
 
   public void sendMessage(DigitalSpecimenEvent event) {
     try {
-      rabbitTemplate.convertAndSend(rabbitMQProperties.getExchangeName(),
-          rabbitMQProperties.getRoutingKeyName(), mapper.writeValueAsString(event));
+      rabbitTemplate.convertAndSend(rabbitMqProperties.getExchangeName(),
+          rabbitMqProperties.getRoutingKeyName(), mapper.writeValueAsString(event));
     } catch (JsonProcessingException e) {
       log.error("Unable to send message: {}, parsing to string failed", event, e);
     }
   }
 
   public void sendMessageDLQ(Object message) {
-    rabbitTemplate.convertAndSend(rabbitMQProperties.getDlqExchangeName(),
-        rabbitMQProperties.getDlqRoutingKeyName(), message);
+    rabbitTemplate.convertAndSend(rabbitMqProperties.getDlqExchangeName(),
+        rabbitMqProperties.getDlqRoutingKeyName(), message);
   }
 }

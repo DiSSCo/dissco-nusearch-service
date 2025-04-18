@@ -24,13 +24,13 @@ public class MessageCompressionComponent implements MessageConverter {
   final MessageConverter simpleConverter = new SimpleMessageConverter();
 
   private static byte[] deflateMessage(byte[] message) throws IOException {
-    final int BUFFER_SIZE = 8192; // 8KB
-    try (var rstBao = new ByteArrayOutputStream(BUFFER_SIZE)) {
-      try (var zos = new GZIPOutputStream(rstBao, BUFFER_SIZE)) {
-        zos.write(message);
-        zos.flush();
+    var bufferSize = 8192; // 8KB
+    try (var baos = new ByteArrayOutputStream(bufferSize)) {
+      try (var gzos = new GZIPOutputStream(baos, bufferSize)) { // gzos needs to be closed first to push out last bytes
+        gzos.write(message);
+        gzos.flush();
       }
-      return rstBao.toByteArray();
+      return baos.toByteArray();
     }
   }
 
