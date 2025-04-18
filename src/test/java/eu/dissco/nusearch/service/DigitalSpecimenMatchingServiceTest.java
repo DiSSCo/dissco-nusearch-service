@@ -55,7 +55,7 @@ class DigitalSpecimenMatchingServiceTest {
   @Mock
   private NubMatchingService nubMatchingService;
   @Mock
-  private RabbitMqService rabbitMqService;
+  private RabbitMqPublisherService rabbitMqService;
   private DigitalSpecimenMatchingService service;
   private MockedStatic<Instant> mockedInstant;
   private MockedStatic<Clock> mockedClock;

@@ -2,19 +2,16 @@ package eu.dissco.nusearch.service;
 
 import static eu.dissco.nusearch.TestUtils.MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.then;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.RabbitMqProperties;
 import java.io.IOException;
-import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -23,13 +20,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
-class RabbitMqServiceTest {
+class RabbitMqPublisherServiceTest {
 
   private static RabbitMQContainer container;
-  private static RabbitMqService rabbitMqService;
+  private static RabbitMqPublisherService rabbitMqService;
   private static RabbitTemplate rabbitTemplate;
-  @Mock
-  private DigitalSpecimenMatchingService matchingService;
 
   @BeforeAll
   static void setupContainer() throws IOException, InterruptedException {
@@ -69,35 +64,21 @@ class RabbitMqServiceTest {
 
   @BeforeEach
   void setup() {
-    rabbitMqService = new RabbitMqService(MAPPER, rabbitTemplate, matchingService,
+    rabbitMqService = new RabbitMqPublisherService(MAPPER, rabbitTemplate,
         new RabbitMqProperties());
-  }
-
-  @Test
-  void testReceiveMessage() throws JsonProcessingException {
-    // Given
-    var message = givenMessage();
-
-    // When
-    rabbitMqService.getMessages(List.of(message));
-
-    // Then
-    then(matchingService).should()
-        .handleMessages(List.of(MAPPER.readValue(message, DigitalSpecimenEvent.class)));
   }
 
   @Test
   void testInvalidReceiveMessage() {
     // Given
-    var message = givenInvalidMessage();
+    var invalidMessage = givenInvalidMessage();
 
     // When
-    rabbitMqService.getMessages(List.of(message));
+    rabbitMqService.sendMessageDLQ(invalidMessage);
 
     // Then
-    var dlqMessage = rabbitTemplate.receive("nu-search-queue-dlq");
-    assertThat(new String(dlqMessage.getBody())).isEqualTo(message);
-    then(matchingService).should().handleMessages(List.of());
+    var result = rabbitTemplate.receive("nu-search-queue-dlq");
+    assertThat(new String(result.getBody())).isEqualTo(invalidMessage);
   }
 
   @Test

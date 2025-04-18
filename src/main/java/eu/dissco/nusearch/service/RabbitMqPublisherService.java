@@ -7,14 +7,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.RabbitMqProperties;
-import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Profile;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
 
@@ -22,26 +18,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Profile({STANDALONE, S3_RESOLVER})
 @AllArgsConstructor
-public class RabbitMqService {
+public class RabbitMqPublisherService {
 
   private final ObjectMapper mapper;
   private final RabbitTemplate rabbitTemplate;
-  private final DigitalSpecimenMatchingService service;
   private final RabbitMqProperties rabbitMqProperties;
-
-  @RabbitListener(queues = "#{rabbitMQProperties.queueName}", containerFactory = "consumerBatchContainerFactory")
-  public void getMessages(@Payload List<String> messages) {
-    var events = messages.stream().map(message -> {
-      try {
-        return mapper.readValue(message, DigitalSpecimenEvent.class);
-      } catch (JsonProcessingException e) {
-        log.error("Moving message to DLQ, failed to parse event message: {}", message, e);
-        sendMessageDLQ(message);
-        return null;
-      }
-    }).filter(Objects::nonNull).toList();
-    service.handleMessages(events);
-  }
 
   public void sendMessage(DigitalSpecimenEvent event) {
     try {
