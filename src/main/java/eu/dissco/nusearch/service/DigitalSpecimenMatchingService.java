@@ -55,7 +55,7 @@ public class DigitalSpecimenMatchingService {
   private final NubMatchingService nubMatchingService;
   private final ExecutorService executorService;
   private final NameParserGbifV1 nameParserGbifV1;
-  private final KafkaProducerService kafkaProducerService;
+  private final RabbitMqPublisherService publisherService;
   private final ApplicationProperties properties;
 
   private static void setTaxonClassification(TaxonIdentification taxonIdentification,
@@ -215,7 +215,7 @@ public class DigitalSpecimenMatchingService {
     }
     setUpdatedSpecimenName(event);
     setUpdatedTopicDiscipline(event);
-    kafkaProducerService.sendMessage(event);
+    publisherService.sendMessage(event);
   }
 
   private void setUpdatedTopicDiscipline(DigitalSpecimenEvent event) {

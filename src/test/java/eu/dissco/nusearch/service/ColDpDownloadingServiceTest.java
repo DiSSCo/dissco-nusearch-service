@@ -180,4 +180,4 @@ class ColDpDownloadingServiceTest {
     node.put("status", status);
     return node;
   }
-};
+}

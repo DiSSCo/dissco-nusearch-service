@@ -10,28 +10,31 @@ import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.annotation.Profile;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-@Service
+
 @Slf4j
+@Service
 @Profile({STANDALONE, S3_RESOLVER})
 @AllArgsConstructor
-public class KafkaConsumerService {
+public class RabbitMqConsumerService {
 
   private final ObjectMapper mapper;
+  private final RabbitMqPublisherService publisherService;
   private final DigitalSpecimenMatchingService service;
 
-
-  @KafkaListener(topics = "${kafka.consumer.topic}")
+  @RabbitListener(queues = {
+      "${rabbitmq.queue-name:nu-search-queue}"}, containerFactory = "consumerBatchContainerFactory")
   public void getMessages(@Payload List<String> messages) {
     var events = messages.stream().map(message -> {
       try {
         return mapper.readValue(message, DigitalSpecimenEvent.class);
       } catch (JsonProcessingException e) {
-        log.error("Moving message to DLQ, failed to parse event message", e);
+        log.error("Moving message to DLQ, failed to parse event message: {}", message, e);
+        publisherService.sendMessageDLQ(message);
         return null;
       }
     }).filter(Objects::nonNull).toList();

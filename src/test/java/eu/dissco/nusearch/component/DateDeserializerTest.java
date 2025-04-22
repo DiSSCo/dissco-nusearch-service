@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.core.JsonParser;
-import eu.dissco.nusearch.component.DateDeserializer;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
