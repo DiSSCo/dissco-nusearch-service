@@ -52,6 +52,7 @@ public class DigitalSpecimenMatchingService {
       "METEORITESPECIMEN", "METEORITE SPECIMEN");
   private static final List<String> EARTH_SYSTEM_BASIS_OF_RECORD = List.of("ROCK", "MINERAL",
       "ROCKSPECIMEN", "ROCK SPECIMEN", "MINERALSPECIMEN", "MINERAL SPECIMEN");
+  private static final String COL_RELATION_OF_RESOURCE = "hasCOLID";
 
   private final NubMatchingService nubMatchingService;
   private final ExecutorService executorService;
@@ -137,7 +138,7 @@ public class DigitalSpecimenMatchingService {
         .add(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(Instant.now()))
-            .withDwcRelationshipOfResource("hasCOLID")
+            .withDwcRelationshipOfResource(COL_RELATION_OF_RESOURCE)
             .withOdsRelatedResourceURI(URI.create(COL_URI + rankedName.getColId()))
             .withDwcRelatedResourceID(rankedName.getColId())
             .withOdsHasAgents(List.of(new Agent()
@@ -223,14 +224,14 @@ public class DigitalSpecimenMatchingService {
   private void deduplicateEntityRelationships(DigitalSpecimenEvent event) {
     var colErList = event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
         .stream()
-        .filter(er -> er.getDwcRelationshipOfResource().equals("hasCOLID")).toList();
+        .filter(er -> er.getDwcRelationshipOfResource().equals(COL_RELATION_OF_RESOURCE)).toList();
     var uniqueColErList = HashSet.newHashSet(colErList.size());
     for (var colEr : colErList) {
-      if (uniqueColErList.contains(colEr)) {
+      if (uniqueColErList.contains(colEr.getOdsRelatedResourceURI())) {
         event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
             .remove(colEr);
       } else {
-        uniqueColErList.add(colEr);
+        uniqueColErList.add(colEr.getOdsRelatedResourceURI());
       }
     }
   }
