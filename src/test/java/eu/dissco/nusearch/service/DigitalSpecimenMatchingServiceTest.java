@@ -7,12 +7,14 @@ import static eu.dissco.nusearch.TestUtils.givenColDpNameUsageMatch2;
 import static eu.dissco.nusearch.TestUtils.givenDigitalSpecimenEvent;
 import static eu.dissco.nusearch.schema.Agent.Type.SCHEMA_SOFTWARE_APPLICATION;
 import static eu.dissco.nusearch.schema.Identifier.OdsGupriLevel.GLOBALLY_UNIQUE_STABLE_PERSISTENT_RESOLVABLE_FDO_COMPLIANT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mockStatic;
 
 import eu.dissco.nusearch.domain.Classification;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
+import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.ApplicationProperties;
 import eu.dissco.nusearch.schema.Agent;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
@@ -42,6 +44,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,6 +56,8 @@ class DigitalSpecimenMatchingServiceTest {
   private static final Instant DATE = Instant.parse("2024-02-14T09:23:24.000Z");
   private final ExecutorService executorService = currentThreadExecutorService();
   private final NameParserGbifV1 nameParserGbifV1 = new NameParserGbifV1();
+  @Captor
+  ArgumentCaptor<DigitalSpecimenEvent> digitalSpecimenEventArgumentCaptor;
   @Mock
   private NubMatchingService nubMatchingService;
   @Mock
@@ -109,6 +115,40 @@ class DigitalSpecimenMatchingServiceTest {
     // Then
     then(rabbitMqService).should()
         .sendMessage(givenDigitalSpecimenEvent(expectedDigitalSpecimen()));
+  }
+
+  @Test
+  void testHandleMessageTwo() {
+    // Given
+    var digitalSpecimenEvent = givenDigitalSpecimenEvent();
+    digitalSpecimenEvent.digitalSpecimenWrapper().attributes().setOdsHasIdentifications(List.of(
+        new Identification().withOdsHasTaxonIdentifications(
+            List.of(new TaxonIdentification().withDwcScientificName("Aa brevis")
+                .withDwcOrder("Asparagales"))
+        ),
+        new Identification().withOdsHasTaxonIdentifications(
+            List.of(new TaxonIdentification().withDwcScientificName("Aa brevis")
+                    .withDwcOrder("Asparagales"),
+                new TaxonIdentification().withDwcScientificName("Aa brevis")
+                    .withDwcOrder("Asparagales"))
+        )));
+    var messages = List.of(digitalSpecimenEvent);
+    var classification = new Classification();
+    classification.setOrder("Asparagales");
+    given(nubMatchingService.match2(null, "Aa brevis", null, null, null, null, null, classification,
+        null, false, true)).willReturn(givenColDpNameUsageMatch());
+    given(nubMatchingService.v2(givenColDpNameUsageMatch())).willReturn(
+        givenColDpNameUsageMatch2());
+
+    // When
+    service.handleMessages(messages);
+
+    // Then
+    then(rabbitMqService).should()
+        .sendMessage(digitalSpecimenEventArgumentCaptor.capture());
+    var result = digitalSpecimenEventArgumentCaptor.getValue();
+    assertThat(result.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()).hasSize(
+        1);
   }
 
   @Test

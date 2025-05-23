@@ -24,6 +24,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -213,9 +214,25 @@ public class DigitalSpecimenMatchingService {
         addEntityRelationship(taxonMatchResult, event);
       }
     }
+    deduplicateEntityRelationships(event);
     setUpdatedSpecimenName(event);
     setUpdatedTopicDiscipline(event);
     publisherService.sendMessage(event);
+  }
+
+  private void deduplicateEntityRelationships(DigitalSpecimenEvent event) {
+    var colErList = event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
+        .stream()
+        .filter(er -> er.getDwcRelationshipOfResource().equals("hasCOLID")).toList();
+    var uniqueColErList = HashSet.newHashSet(colErList.size());
+    for (var colEr : colErList) {
+      if (uniqueColErList.contains(colEr)) {
+        event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
+            .remove(colEr);
+      } else {
+        uniqueColErList.add(colEr);
+      }
+    }
   }
 
   private void setUpdatedTopicDiscipline(DigitalSpecimenEvent event) {
