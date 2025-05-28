@@ -25,8 +25,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gbif.api.exception.UnparsableException;
@@ -51,6 +53,7 @@ public class DigitalSpecimenMatchingService {
       "METEORITESPECIMEN", "METEORITE SPECIMEN");
   private static final List<String> EARTH_SYSTEM_BASIS_OF_RECORD = List.of("ROCK", "MINERAL",
       "ROCKSPECIMEN", "ROCK SPECIMEN", "MINERALSPECIMEN", "MINERAL SPECIMEN");
+  private static final String COL_RELATION_OF_RESOURCE = "hasCOLID";
 
   private final NubMatchingService nubMatchingService;
   private final ExecutorService executorService;
@@ -129,14 +132,13 @@ public class DigitalSpecimenMatchingService {
     }
   }
 
-  private void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
+  private void addEntityRelationship(ColDpRankedName rankedName,
       DigitalSpecimenEvent event) {
-    var rankedName = determineAcceptedUsage(taxonMatchResult);
     event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
         .add(new EntityRelationship()
             .withType("ods:EntityRelationship")
             .withDwcRelationshipEstablishedDate(Date.from(Instant.now()))
-            .withDwcRelationshipOfResource("hasCOLID")
+            .withDwcRelationshipOfResource(COL_RELATION_OF_RESOURCE)
             .withOdsRelatedResourceURI(URI.create(COL_URI + rankedName.getColId()))
             .withDwcRelatedResourceID(rankedName.getColId())
             .withOdsHasAgents(List.of(new Agent()
@@ -209,13 +211,25 @@ public class DigitalSpecimenMatchingService {
     for (Identification identification : identifications) {
       log.debug("Handling taxon: {}", identification);
       var taxonMatchResults = handleIdentification(identification);
-      for (var taxonMatchResult : taxonMatchResults) {
-        addEntityRelationship(taxonMatchResult, event);
-      }
+      var existingColIds = colIdList(event);
+      taxonMatchResults.stream()
+          .map(this::determineAcceptedUsage)
+          .filter(rank -> !existingColIds.contains(rank.getColId()))
+          .collect(Collectors.toMap(ColDpRankedName::getColId, rank -> rank,
+              (existing, replacement) -> existing)).values()
+          .forEach(rankedName -> addEntityRelationship(rankedName, event));
     }
     setUpdatedSpecimenName(event);
     setUpdatedTopicDiscipline(event);
     publisherService.sendMessage(event);
+  }
+
+  private Set<String> colIdList(DigitalSpecimenEvent event) {
+    return event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
+        .stream()
+        .filter(er -> er.getDwcRelationshipOfResource().equals(COL_RELATION_OF_RESOURCE))
+        .map(EntityRelationship::getDwcRelatedResourceID)
+        .collect(Collectors.toSet());
   }
 
   private void setUpdatedTopicDiscipline(DigitalSpecimenEvent event) {
