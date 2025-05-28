@@ -211,12 +211,13 @@ public class DigitalSpecimenMatchingService {
     for (Identification identification : identifications) {
       log.debug("Handling taxon: {}", identification);
       var taxonMatchResults = handleIdentification(identification);
-      for (var taxonMatchResult : taxonMatchResults) {
-        var rankedName = determineAcceptedUsage(taxonMatchResult);
-        if (!colIdList(event).contains(rankedName.getColId())) {
-          addEntityRelationship(rankedName, event);
-        }
-      }
+      var existingColIds = colIdList(event);
+      taxonMatchResults.stream()
+          .map(this::determineAcceptedUsage)
+          .filter(rank -> !existingColIds.contains(rank.getColId()))
+          .collect(Collectors.toMap(ColDpRankedName::getColId, rank -> rank,
+              (existing, replacement) -> existing)).values()
+          .forEach(rankedName -> addEntityRelationship(rankedName, event));
     }
     setUpdatedSpecimenName(event);
     setUpdatedTopicDiscipline(event);
