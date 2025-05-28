@@ -24,10 +24,11 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gbif.api.exception.UnparsableException;
@@ -131,9 +132,8 @@ public class DigitalSpecimenMatchingService {
     }
   }
 
-  private void addEntityRelationship(ColNameUsageMatch2 taxonMatchResult,
+  private void addEntityRelationship(ColDpRankedName rankedName,
       DigitalSpecimenEvent event) {
-    var rankedName = determineAcceptedUsage(taxonMatchResult);
     event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
         .add(new EntityRelationship()
             .withType("ods:EntityRelationship")
@@ -212,28 +212,23 @@ public class DigitalSpecimenMatchingService {
       log.debug("Handling taxon: {}", identification);
       var taxonMatchResults = handleIdentification(identification);
       for (var taxonMatchResult : taxonMatchResults) {
-        addEntityRelationship(taxonMatchResult, event);
+        var rankedName = determineAcceptedUsage(taxonMatchResult);
+        if (!colIdList(event).contains(rankedName.getColId())) {
+          addEntityRelationship(rankedName, event);
+        }
       }
     }
-    deduplicateEntityRelationships(event);
     setUpdatedSpecimenName(event);
     setUpdatedTopicDiscipline(event);
     publisherService.sendMessage(event);
   }
 
-  private void deduplicateEntityRelationships(DigitalSpecimenEvent event) {
-    var colErList = event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
+  private Set<String> colIdList(DigitalSpecimenEvent event) {
+    return event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
         .stream()
-        .filter(er -> er.getDwcRelationshipOfResource().equals(COL_RELATION_OF_RESOURCE)).toList();
-    var uniqueColErList = HashSet.newHashSet(colErList.size());
-    for (var colEr : colErList) {
-      if (uniqueColErList.contains(colEr.getOdsRelatedResourceURI())) {
-        event.digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships()
-            .remove(colEr);
-      } else {
-        uniqueColErList.add(colEr.getOdsRelatedResourceURI());
-      }
-    }
+        .filter(er -> er.getDwcRelationshipOfResource().equals(COL_RELATION_OF_RESOURCE))
+        .map(EntityRelationship::getDwcRelatedResourceID)
+        .collect(Collectors.toSet());
   }
 
   private void setUpdatedTopicDiscipline(DigitalSpecimenEvent event) {
