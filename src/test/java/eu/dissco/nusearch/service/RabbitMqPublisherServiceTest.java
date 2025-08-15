@@ -122,9 +122,10 @@ class RabbitMqPublisherServiceTest {
   private String givenMessage() {
     return """
         {
-          "enrichmentList": [
+          "masList": [
             "OCR"
             ],
+            "forceMasSchedule": false,
           "digitalSpecimenWrapper": {
             "ods:normalisedPhysicalSpecimenID": "https://geocollections.info/specimen/23602",
             "ods:type": "https://doi.org/21.T11148/894b1e6cad57e921764e",
