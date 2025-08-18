@@ -1,0 +1,8 @@
+# Aug 18 - These are all issues spring should resolve. If they remain by next release we should manually update
+
+# Issue with Jackson
+CVE-2025-52999
+# Issue with Apache Bean Utils
+CVE-2025-48734
+# Issue with netty
+CVE-2025-55163
