@@ -17,6 +17,7 @@ import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
 import eu.dissco.nusearch.schema.Identification;
 import eu.dissco.nusearch.schema.TaxonIdentification;
 import java.util.List;
+import java.util.Set;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 
@@ -324,11 +325,11 @@ public class TestUtils {
     return givenDigitalSpecimenEvent(givenDigitalSpecimen());
   }
   public static DigitalSpecimenEvent givenDigitalSpecimenEvent(DigitalSpecimen digitalSpecimen) {
-    return new DigitalSpecimenEvent(List.of("AAS"),
+    return new DigitalSpecimenEvent(Set.of("AAS"),
         new DigitalSpecimenWrapper(NORMALISED_PHYSICAL_SPECIMEN_ID,
             "https://doi.org/21.T11148/894b1e6cad57e921764e", digitalSpecimen,
             MAPPER.createObjectNode()),
-        List.of(new ObjectMapper().createObjectNode()));
+        List.of(new ObjectMapper().createObjectNode()), false);
   }
 
   private static DigitalSpecimen givenDigitalSpecimen() {
