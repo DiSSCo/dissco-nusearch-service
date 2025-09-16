@@ -118,6 +118,20 @@ class DigitalSpecimenMatchingServiceTest {
   }
 
   @Test
+  void testHandleGeoDiversityMessageMessage() {
+    // Given
+    var messages = List.of(givenDigitalSpecimenEvent(OdsTopicDiscipline.ASTROGEOLOGY));
+
+    // When
+    service.handleMessages(messages);
+
+    // Then
+    then(nubMatchingService).shouldHaveNoInteractions();
+    then(rabbitMqService).should()
+        .sendMessage(givenDigitalSpecimenEvent(OdsTopicDiscipline.ASTROGEOLOGY));
+  }
+
+  @Test
   void testHandleMessageTwo() {
     // Given
     var digitalSpecimenEvent = givenDigitalSpecimenEvent();
