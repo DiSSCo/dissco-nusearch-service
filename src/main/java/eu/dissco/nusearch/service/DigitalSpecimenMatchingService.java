@@ -2,6 +2,13 @@ package eu.dissco.nusearch.service;
 
 import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
 import static eu.dissco.nusearch.Profiles.STANDALONE;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.ANTHROPOLOGY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.BOTANY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.ECOLOGY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.MICROBIOLOGY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.OTHER_BIODIVERSITY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.PALAEONTOLOGY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.ZOOLOGY;
 
 import com.google.common.base.Strings;
 import eu.dissco.nusearch.domain.Classification;
@@ -54,6 +61,8 @@ public class DigitalSpecimenMatchingService {
   private static final List<String> EARTH_SYSTEM_BASIS_OF_RECORD = List.of("ROCK", "MINERAL",
       "ROCKSPECIMEN", "ROCK SPECIMEN", "MINERALSPECIMEN", "MINERAL SPECIMEN");
   private static final String COL_RELATION_OF_RESOURCE = "hasCOLID";
+  private static final Set<OdsTopicDiscipline> BIO_TOPIC_DISCIPLINES = Set.of(MICROBIOLOGY,
+      ANTHROPOLOGY, BOTANY, ZOOLOGY, PALAEONTOLOGY, OTHER_BIODIVERSITY, ECOLOGY);
 
   private final NubMatchingService nubMatchingService;
   private final ExecutorService executorService;
@@ -207,21 +216,32 @@ public class DigitalSpecimenMatchingService {
   }
 
   private void handleEvent(DigitalSpecimenEvent event) {
-    var identifications = event.digitalSpecimenWrapper().attributes().getOdsHasIdentifications();
-    for (Identification identification : identifications) {
-      log.debug("Handling taxon: {}", identification);
-      var taxonMatchResults = handleIdentification(identification);
-      var existingColIds = colIdList(event);
-      taxonMatchResults.stream()
-          .map(this::determineAcceptedUsage)
-          .filter(rank -> !existingColIds.contains(rank.getColId()))
-          .collect(Collectors.toMap(ColDpRankedName::getColId, rank -> rank,
-              (existing, replacement) -> existing)).values()
-          .forEach(rankedName -> addEntityRelationship(rankedName, event));
+    if (isTaxResolutionNeeded(event)) {
+      var identifications = event.digitalSpecimenWrapper().attributes().getOdsHasIdentifications();
+      for (Identification identification : identifications) {
+        log.debug("Handling taxon: {}", identification);
+        var taxonMatchResults = handleIdentification(identification);
+        var existingColIds = colIdList(event);
+        taxonMatchResults.stream()
+            .map(this::determineAcceptedUsage)
+            .filter(rank -> !existingColIds.contains(rank.getColId()))
+            .collect(Collectors.toMap(ColDpRankedName::getColId, rank -> rank,
+                (existing, replacement) -> existing)).values()
+            .forEach(rankedName -> addEntityRelationship(rankedName, event));
+      }
+      setUpdatedSpecimenName(event);
+      setUpdatedTopicDiscipline(event);
+    } else {
+      log.debug("Skipping taxonomic resolution for event: {} with topicDisciplines: {}",
+          event.digitalSpecimenWrapper().physicalSpecimenID(),
+          event.digitalSpecimenWrapper().attributes().getDwcBasisOfRecord());
     }
-    setUpdatedSpecimenName(event);
-    setUpdatedTopicDiscipline(event);
     publisherService.sendMessage(event);
+  }
+
+  private boolean isTaxResolutionNeeded(DigitalSpecimenEvent event) {
+    var ds = event.digitalSpecimenWrapper().attributes();
+    return BIO_TOPIC_DISCIPLINES.contains(ds.getOdsTopicDiscipline());
   }
 
   private Set<String> colIdList(DigitalSpecimenEvent event) {
@@ -265,7 +285,7 @@ public class DigitalSpecimenMatchingService {
             return OdsTopicDiscipline.BOTANY;
           }
           case "BACTERIA" -> {
-            return OdsTopicDiscipline.MICROBIOLOGY;
+            return MICROBIOLOGY;
           }
           default -> {
             return OdsTopicDiscipline.UNCLASSIFIED;

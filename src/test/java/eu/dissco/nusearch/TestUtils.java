@@ -322,8 +322,13 @@ public class TestUtils {
   }
 
   public static DigitalSpecimenEvent givenDigitalSpecimenEvent() {
-    return givenDigitalSpecimenEvent(givenDigitalSpecimen());
+    return givenDigitalSpecimenEvent(givenDigitalSpecimen(OdsTopicDiscipline.BOTANY));
   }
+
+  public static DigitalSpecimenEvent givenDigitalSpecimenEvent(OdsTopicDiscipline topicDiscipline) {
+    return givenDigitalSpecimenEvent(givenDigitalSpecimen(topicDiscipline));
+  }
+
   public static DigitalSpecimenEvent givenDigitalSpecimenEvent(DigitalSpecimen digitalSpecimen) {
     return new DigitalSpecimenEvent(Set.of("AAS"),
         new DigitalSpecimenWrapper(NORMALISED_PHYSICAL_SPECIMEN_ID,
@@ -332,12 +337,12 @@ public class TestUtils {
         List.of(new ObjectMapper().createObjectNode()), false);
   }
 
-  private static DigitalSpecimen givenDigitalSpecimen() {
+  private static DigitalSpecimen givenDigitalSpecimen(OdsTopicDiscipline topicDiscipline) {
     return new DigitalSpecimen()
         .withOdsNormalisedPhysicalSpecimenID(NORMALISED_PHYSICAL_SPECIMEN_ID)
         .withOdsOrganisationID(INSTITUTION_ID)
         .withDwcBasisOfRecord("PreservedSpecimen")
-        .withOdsTopicDiscipline(OdsTopicDiscipline.UNCLASSIFIED)
+        .withOdsTopicDiscipline(topicDiscipline)
         .withOdsSpecimenName("Aa brevis")
         .withOdsHasIdentifications(List.of(
             new Identification().withOdsHasTaxonIdentifications(
