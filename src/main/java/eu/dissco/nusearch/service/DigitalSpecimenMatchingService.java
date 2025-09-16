@@ -232,7 +232,7 @@ public class DigitalSpecimenMatchingService {
       setUpdatedSpecimenName(event);
       setUpdatedTopicDiscipline(event);
     } else {
-      log.info("Skipping taxonomic resolution for event: {}, basisOfRecord: {} indicates no taxa",
+      log.debug("Skipping taxonomic resolution for event: {} with topicDisciplines: {}",
           event.digitalSpecimenWrapper().physicalSpecimenID(),
           event.digitalSpecimenWrapper().attributes().getDwcBasisOfRecord());
     }
