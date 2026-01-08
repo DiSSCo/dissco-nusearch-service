@@ -8,6 +8,7 @@ import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.ECOLO
 import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.MICROBIOLOGY;
 import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.OTHER_BIODIVERSITY;
 import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.PALAEONTOLOGY;
+import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.UNCLASSIFIED;
 import static eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline.ZOOLOGY;
 
 import com.google.common.base.Strings;
@@ -62,7 +63,7 @@ public class DigitalSpecimenMatchingService {
       "ROCKSPECIMEN", "ROCK SPECIMEN", "MINERALSPECIMEN", "MINERAL SPECIMEN");
   private static final String COL_RELATION_OF_RESOURCE = "hasCOLID";
   private static final Set<OdsTopicDiscipline> BIO_TOPIC_DISCIPLINES = Set.of(MICROBIOLOGY,
-      ANTHROPOLOGY, BOTANY, ZOOLOGY, PALAEONTOLOGY, OTHER_BIODIVERSITY, ECOLOGY);
+      ANTHROPOLOGY, BOTANY, ZOOLOGY, PALAEONTOLOGY, OTHER_BIODIVERSITY, ECOLOGY, UNCLASSIFIED);
 
   private final NubMatchingService nubMatchingService;
   private final ExecutorService executorService;
