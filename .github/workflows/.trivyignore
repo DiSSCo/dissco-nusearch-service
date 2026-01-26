@@ -1,5 +1,8 @@
-# Aug 18 - These are all issues spring should resolve. If they remain by next release we should manually update
-# Issue with Jackson
-CVE-2025-52999
-# Issue with Apache Bean Utils
+# Issue with Apache Bean Utils in GBIF common-ws/api, 26 Jan 2026
 CVE-2025-48734
+
+# Issue with jackson-core in GBIF common, 26 Jan 2026
+CVE-2025-52999
+
+# Issue with tika-core in GBIF parsers, 26 Jan 2026
+CVE-2025-66516
