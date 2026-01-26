@@ -146,7 +146,6 @@ public class TestUtils {
     colNameUsageMatch2.setSynonym(true);
     colNameUsageMatch2.setUsage(givenNameSynonymNameUsage());
     colNameUsageMatch2.setAcceptedUsage(givenAcceptedNameUsage());
-    colNameUsageMatch2.setNomenclature(null);
     colNameUsageMatch2.setClassification(givenClassification());
     colNameUsageMatch2.setDiagnostics(givenDiagnostics());
     return colNameUsageMatch2;
@@ -283,7 +282,6 @@ public class TestUtils {
     colNameUsageMatch2.setAcceptedUsage(givenColDpRankedName("73SWK", "Myrosmodes brevis",
         "(Schltr.) Garay", "SPECIES", false, "Myrosmodes brevis (Schltr.) Garay",
         "<i>Myrosmodes brevis</i> (Schltr.) Garay", ACCEPTED));
-    colNameUsageMatch2.setNomenclature(null);
     colNameUsageMatch2.setClassification(givenRankedNameClassification());
     colNameUsageMatch2.setDiagnostics(givenDiagnostics());
     return colNameUsageMatch2;
