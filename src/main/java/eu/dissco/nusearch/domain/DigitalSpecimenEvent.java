@@ -7,6 +7,8 @@ import java.util.Set;
 public record DigitalSpecimenEvent(
     Set<String> masList,
     DigitalSpecimenWrapper digitalSpecimenWrapper,
-    List<JsonNode> digitalMediaEvents, Boolean forceMasSchedule) {
+    List<JsonNode> digitalMediaEvents,
+    Boolean forceMasSchedule,
+    Boolean updateMediaEntityRelationships) {
 
 }

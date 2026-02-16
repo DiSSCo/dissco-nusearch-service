@@ -332,7 +332,7 @@ public class TestUtils {
         new DigitalSpecimenWrapper(NORMALISED_PHYSICAL_SPECIMEN_ID,
             "https://doi.org/21.T11148/894b1e6cad57e921764e", digitalSpecimen,
             MAPPER.createObjectNode()),
-        List.of(new ObjectMapper().createObjectNode()), false);
+        List.of(new ObjectMapper().createObjectNode()), false, false);
   }
 
   private static DigitalSpecimen givenDigitalSpecimen(OdsTopicDiscipline topicDiscipline) {
