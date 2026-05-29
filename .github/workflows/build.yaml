@@ -40,7 +40,7 @@ jobs:
         run: |
           docker build -t ${{ github.event.repository.name }} .
       - name: Trivy - List all vulnerabilities
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: '${{ github.event.repository.name }}'
           format: 'table'
@@ -50,7 +50,7 @@ jobs:
           TRIVY_SKIP_DB_UPDATE: true
           TRIVY_SKIP_JAVA_DB_UPDATE: true
       - name: Trivy - Stop on Severe Vulnerabilities
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.35.0
         if: github.event_name != 'push'
         with:
           image-ref: '${{ github.event.repository.name }}'
