@@ -1,14 +1,10 @@
 package eu.dissco.nusearch.service;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-
 import com.univocity.parsers.tsv.TsvRoutines;
 import eu.dissco.nusearch.Profiles;
 import eu.dissco.nusearch.configuration.TsvReader;
 import eu.dissco.nusearch.property.IndexingProperties;
 import eu.dissco.nusearch.repository.StorageRepositoryInterface;
-import java.nio.file.Path;
 import org.apache.lucene.index.IndexWriter;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +14,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
+import java.nio.file.Path;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+
 @ExtendWith(MockitoExtension.class)
 class ColDpIndexingServiceTest {
 
-  private final TsvRoutines tsvRoutines = new TsvReader().createTsvReader();
+  private final TsvRoutines tsvRoutines = new TsvReader(new IndexingProperties()).createTsvReader();
   @Mock
   private IndexWriter indexWriter;
   @Mock

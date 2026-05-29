@@ -20,6 +20,9 @@ public class IndexingProperties {
   @NotBlank
   private String colPassword;
 
+  @Positive
+  private int maxCharsPerColumn = 196608;
+
   private String indexLocation = "src/main/resources/index";
 
   private String tempColDpLocation = "src/main/resources/sample.zip";
