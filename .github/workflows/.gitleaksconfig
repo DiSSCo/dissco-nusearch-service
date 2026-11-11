@@ -1,0 +1,5 @@
+title = "Gitleaks Configuration"
+
+[[allowlists]]
+description = "April 7 - ignore false positive, test variable matched gitleaks regex"
+commits = ["3007e43"]
