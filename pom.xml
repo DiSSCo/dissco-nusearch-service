@@ -19,7 +19,6 @@
     <univocity-parsers.version>2.9.1</univocity-parsers.version>
     <gbif-name-parser.version>4.0.0</gbif-name-parser.version>
     <gbif-api.version>2.4.29</gbif-api.version>
-    <gbif-common.version>1.2</gbif-common.version>
     <gbif-parsers.version>0.69</gbif-parsers.version>
     <gbif-name-parser-v1.version>4.0.0</gbif-name-parser-v1.version>
     <lucene.version>10.6.0</lucene.version>
@@ -29,6 +28,10 @@
     <commons-io.version>2.22.0</commons-io.version>
     <springdoc-openapi.version>3.2.0</springdoc-openapi.version>
     <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
+<!-- RabbitMQ overwrite can be removed when Spring Boot updates the version-->
+    <rabbit-amqp-client.version>5.37.1</rabbit-amqp-client.version>
+    <guava.version>33.8.0-jre</guava.version>
+    <commons-beanutils.version>1.11.0</commons-beanutils.version>
   </properties>
 
   <repositories>
@@ -41,6 +44,17 @@
       </snapshots>
     </repository>
   </repositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>${commons-beanutils.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
 
   <dependencies>
     <dependency>
@@ -102,11 +116,6 @@
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>gbif-common</artifactId>
-      <version>${gbif-common.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif</groupId>
       <artifactId>name-parser-v1</artifactId>
       <version>${gbif-name-parser-v1.version}</version>
     </dependency>
@@ -114,6 +123,18 @@
       <groupId>org.gbif</groupId>
       <artifactId>gbif-parsers</artifactId>
       <version>${gbif-parsers.version}</version>
+      <exclusions>
+        <!-- only used by MediaParser, we only use RankParser -->
+        <exclusion>
+          <groupId>org.apache.tika</groupId>
+          <artifactId>tika-core</artifactId>
+        </exclusion>
+        <!-- Excluding as it uses old Jackson 2 version        -->
+        <exclusion>
+          <groupId>org.gbif</groupId>
+          <artifactId>gbif-common</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
@@ -154,6 +175,12 @@
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>aws-crt-client</artifactId>
       <version>${amazon.awssdk.version}</version>
+    </dependency>
+<!-- Overwrites GBIF's Guava version -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
 
     <dependency>

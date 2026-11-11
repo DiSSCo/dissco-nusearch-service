@@ -24,11 +24,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import eu.dissco.nusearch.domain.Equality;
+import eu.dissco.nusearch.utils.GbifTextUtils;
 import eu.dissco.nusearch.utils.YearComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +92,7 @@ public class AuthorComparator {
   public static AuthorComparator createWithAuthormap() {
     try {
       return new AuthorComparator(
-          FileUtils.streamToMap(
+          GbifTextUtils.streamToMap(
               Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME))
                   .openStream(),
               Maps.<String, String>newHashMap(), 0, 2, true)
@@ -111,7 +111,7 @@ public class AuthorComparator {
       return null;
     }
     // fold to ascii
-    x = org.gbif.utils.text.StringUtils.foldToAscii(x);
+    x = GbifTextUtils.foldToAscii(x);
 
     // remove in publications
     x = IN.matcher(x).replaceFirst("");

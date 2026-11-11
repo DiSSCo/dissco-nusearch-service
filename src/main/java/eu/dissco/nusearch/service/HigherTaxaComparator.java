@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Closeables;
 import eu.dissco.nusearch.component.RsGbifOrg;
+import eu.dissco.nusearch.utils.GbifTextUtils;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -173,7 +173,7 @@ public class HigherTaxaComparator {
   private Map<String, String> readSynonymStream(Rank rank, InputStream in) {
     Map<String, String> synonyms = Maps.newHashMap();
     try {
-      synonyms = FileUtils.streamToMap(in, 0, 1, true);
+      synonyms = GbifTextUtils.streamToMap(in, 0, 1, true);
     } catch (IOException e) {
       log.warn("Cannot read synonym map from stream for {}. Use empty map instead.", rank, e);
     } finally {
@@ -218,7 +218,7 @@ public class HigherTaxaComparator {
   private void readBlacklistStream(InputStream in) {
     NON_NAMES.clear();
     try {
-      NON_NAMES.addAll(FileUtils.streamToSet(in));
+      NON_NAMES.addAll(GbifTextUtils.streamToSet(in));
     } catch (IOException e) {
       log.warn("Cannot read blacklist. Use empty set instead.", e);
     } finally {
