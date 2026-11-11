@@ -16,14 +16,8 @@ package eu.dissco.nusearch.service;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-nub-ws/src/main/java/org/gbif/checklistbank/ws/nub/ClassificationProvider.java
 
-import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
-import static eu.dissco.nusearch.Profiles.STANDALONE;
-import static org.gbif.ws.util.CommonWsUtils.getFirst;
-
 import eu.dissco.nusearch.domain.Classification;
-import java.util.Map;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.ws.server.provider.ContextProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -32,14 +26,18 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.Map;
+
+import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
+import static eu.dissco.nusearch.Profiles.STANDALONE;
+
 /**
  * Provider class that extracts LinneanClassification instances from the query parameters.
  */
 @Profile({STANDALONE, S3_RESOLVER})
 public class ClassificationProvider
-    implements HandlerMethodArgumentResolver, ContextProvider<LinneanClassification> {
+    implements HandlerMethodArgumentResolver {
 
-  @Override
   public LinneanClassification getValue(WebRequest webRequest) {
     Map<String, String[]> params = webRequest.getParameterMap();
 
@@ -70,4 +68,10 @@ public class ClassificationProvider
   ) {
     return getValue(nativeWebRequest);
   }
+
+  private static String getFirst(Map<String, String[]> params, String param) {
+    var values = params.get(param);
+    return values == null || values.length == 0 ? null : values[0];
+  }
+
 }

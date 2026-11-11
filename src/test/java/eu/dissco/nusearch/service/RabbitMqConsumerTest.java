@@ -1,17 +1,17 @@
 package eu.dissco.nusearch.service;
 
-import static eu.dissco.nusearch.TestUtils.MAPPER;
-import static org.mockito.BDDMockito.then;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.List;
+
+import static eu.dissco.nusearch.TestUtils.MAPPER;
+import static org.mockito.BDDMockito.then;
 
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
@@ -20,16 +20,14 @@ class RabbitMqConsumerTest {
   private static RabbitMqConsumerService consumerService;
   @Mock
   private DigitalSpecimenMatchingService matchingService;
-  @Mock
-  private RabbitMqPublisherService publisherService;
 
   @BeforeEach
   void setup() {
-    consumerService = new RabbitMqConsumerService(MAPPER, publisherService, matchingService);
+    consumerService = new RabbitMqConsumerService(MAPPER, matchingService);
   }
 
   @Test
-  void testReceiveMessage() throws JsonProcessingException {
+  void testReceiveMessage() {
     // Given
     var message = givenMessage();
 
@@ -39,42 +37,6 @@ class RabbitMqConsumerTest {
     // Then
     then(matchingService).should()
         .handleMessages(List.of(MAPPER.readValue(message, DigitalSpecimenEvent.class)));
-  }
-
-  @Test
-  void testInvalidReceiveMessage() {
-    // Given
-    var message = givenInvalidMessage();
-
-    // When
-    consumerService.getMessages(List.of(message));
-
-    // Then
-    then(publisherService).should().sendMessageDLQ(message);
-    then(matchingService).should().handleMessages(List.of());
-  }
-
-
-  private String givenInvalidMessage() {
-    return """
-        {
-          "enrichmentList": [
-            "AAS"
-          ],
-          "digitalSpecimen": {
-            "type": "https://doi.org/21.T11148/894b1e6cad57e921764e",
-            "physicalSpecimenId": "https://geocollections.info/specimen/23602",
-            "physicalSpecimenIdType": "global",
-            "specimenName": "Biota",
-            "organisationId": "https://ror.org/0443cwa12",
-            "datasetId": null,
-            "physicalSpecimenCollection": null,
-            "sourceSystemId": "20.5000.1025/MN0-5XP-FFD",
-            "data": {},
-            "originalData": {},
-            "dwcaId": null
-          }
-        }""";
   }
 
   private String givenMessage() {

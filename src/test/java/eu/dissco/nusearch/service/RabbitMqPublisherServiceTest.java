@@ -1,12 +1,7 @@
 package eu.dissco.nusearch.service;
 
-import static eu.dissco.nusearch.TestUtils.MAPPER;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
 import eu.dissco.nusearch.property.RabbitMqProperties;
-import java.io.IOException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +12,11 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.io.IOException;
+
+import static eu.dissco.nusearch.TestUtils.MAPPER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
@@ -82,7 +82,7 @@ class RabbitMqPublisherServiceTest {
   }
 
   @Test
-  void testPublishMessage() throws JsonProcessingException {
+  void testPublishMessage() {
     // Given
     var event = MAPPER.readValue(givenMessage(), DigitalSpecimenEvent.class);
 

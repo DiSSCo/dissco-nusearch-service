@@ -1,8 +1,8 @@
 package eu.dissco.nusearch.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
+import tools.jackson.databind.JsonNode;
 
 public record DigitalSpecimenWrapper(
     @JsonProperty("ods:normalisedPhysicalSpecimenID")

@@ -16,7 +16,7 @@ package eu.dissco.nusearch.utils;
 // Copied and adapted from GBIF:
 // https://github.com/gbif/checklistbank/blob/master/checklistbank-common/src/main/java/org/gbif/checklistbank/utils/SciNameNormalizer.java
 
-import static org.gbif.utils.text.StringUtils.foldToAscii;
+import static eu.dissco.nusearch.utils.GbifTextUtils.foldToAscii;
 
 import java.util.regex.Pattern;
 

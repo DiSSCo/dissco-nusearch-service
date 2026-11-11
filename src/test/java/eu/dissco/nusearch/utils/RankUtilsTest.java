@@ -13,20 +13,21 @@
  */
 package eu.dissco.nusearch.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.gbif.api.vocabulary.Rank;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class RankUtilsTest {
 
   @Test
-  void testNextHigherLinneanRank() throws Exception {
+  void testNextHigherLinneanRank() {
     assertEquals(Rank.FAMILY, RankUtils.nextHigherLinneanRank(Rank.GENUS));
     assertEquals(Rank.FAMILY, RankUtils.nextHigherLinneanRank(Rank.SUBFAMILY));
     assertEquals(Rank.GENUS, RankUtils.nextHigherLinneanRank(Rank.SUBGENUS));
-    assertEquals(null, RankUtils.nextHigherLinneanRank(Rank.KINGDOM));
-    assertEquals(null, RankUtils.nextHigherLinneanRank(Rank.DOMAIN));
+    assertNull( RankUtils.nextHigherLinneanRank(Rank.KINGDOM));
+    assertNull(RankUtils.nextHigherLinneanRank(Rank.DOMAIN));
     assertEquals(Rank.SPECIES, RankUtils.nextHigherLinneanRank(Rank.VARIETY));
   }
 }

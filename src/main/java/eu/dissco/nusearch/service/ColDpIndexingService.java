@@ -1,15 +1,5 @@
 package eu.dissco.nusearch.service;
 
-import static eu.dissco.nusearch.Profiles.S3_INDEXER;
-import static eu.dissco.nusearch.Profiles.S3_RESOLVER;
-import static eu.dissco.nusearch.Profiles.STANDALONE;
-import static eu.dissco.nusearch.repository.NubIndex.FIELD_CANONICAL_NAME;
-import static eu.dissco.nusearch.repository.NubIndex.FIELD_ID;
-import static eu.dissco.nusearch.repository.NubIndex.FIELD_RANK;
-import static eu.dissco.nusearch.repository.NubIndex.FIELD_SCIENTIFIC_NAME;
-import static eu.dissco.nusearch.repository.NubIndex.FIELD_STATUS;
-import static eu.dissco.nusearch.repository.NubIndex.addIfNotNull;
-
 import com.univocity.parsers.tsv.TsvRoutines;
 import eu.dissco.nusearch.domain.ColDpClassification;
 import eu.dissco.nusearch.domain.ColDpNameUsage;
@@ -18,6 +8,17 @@ import eu.dissco.nusearch.property.IndexingProperties;
 import eu.dissco.nusearch.repository.StorageRepositoryInterface;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.util.BytesRef;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.nameparser.NameParserGbifV1;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,24 +29,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.zip.ZipFile;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.util.BytesRef;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.nameparser.NameParserGbifV1;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
+
+import static eu.dissco.nusearch.Profiles.*;
+import static eu.dissco.nusearch.repository.NubIndex.*;
 
 @Slf4j
-@Component
+@Service
 @AllArgsConstructor
 public class ColDpIndexingService {
 
@@ -107,7 +96,7 @@ public class ColDpIndexingService {
   }
 
   @PostConstruct
-  void setup() throws Exception {
+  public void setup() throws Exception {
     if (environment.matchesProfiles(S3_RESOLVER)) {
       storageRepository.downloadIndex(properties.getIndexLocation());
     } else {

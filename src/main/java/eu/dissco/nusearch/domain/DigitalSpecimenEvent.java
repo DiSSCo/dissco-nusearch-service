@@ -1,6 +1,7 @@
 package eu.dissco.nusearch.domain;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+
 import java.util.List;
 import java.util.Set;
 
