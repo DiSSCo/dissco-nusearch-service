@@ -2,10 +2,9 @@ package eu.dissco.nusearch.configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.Nulls;
-import eu.dissco.nusearch.property.ApplicationProperties;
 import lombok.RequiredArgsConstructor;
-import org.gbif.nameparser.NameParserGBIF;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.nameparser.api.NameParser;
+import org.gbif.nameparser.rust.NameParserRust;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import tools.jackson.databind.json.JsonMapper;
@@ -25,14 +24,6 @@ public class ApplicationConfiguration {
 
     public static final String DATE_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
-    private final ApplicationProperties properties;
-
-    @Bean
-    public NameParserGbifV1 nameParserGbifV1() {
-        return new NameParserGbifV1(new NameParserGBIF(properties.getNameParserThreadTimeOut(), 0,
-                properties.getNameParserMaxThreads()));
-    }
-
     @Bean
     public JsonMapper jsonMapper() {
         return JsonMapper.builder()
@@ -45,5 +36,13 @@ public class ApplicationConfiguration {
                 .withConfigOverride(Map.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
                 .withConfigOverride(Set.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
                 .build();
+    }
+
+    // Only used for the year of the matched name. Keep the name-parser-api and
+    // name-parser-rust versions equal to the ones in the matching-ws image, so the
+    // year is the same as GBIF would parse.
+    @Bean
+    public NameParser nameParser() {
+        return new NameParserRust();
     }
 }

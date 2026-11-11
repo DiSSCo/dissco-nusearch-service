@@ -16,17 +16,14 @@
   <description>Name Usage Search based on COL data with GBIF API and algorithm</description>
   <properties>
     <java.version>25</java.version>
-    <univocity-parsers.version>2.9.1</univocity-parsers.version>
     <gbif-name-parser.version>4.0.0</gbif-name-parser.version>
     <gbif-api.version>2.4.29</gbif-api.version>
     <gbif-parsers.version>0.69</gbif-parsers.version>
-    <gbif-name-parser-v1.version>4.0.0</gbif-name-parser-v1.version>
-    <lucene.version>10.6.0</lucene.version>
+    <name-parser-api.version>5.0.0</name-parser-api.version>
+    <name-parser-rust.version>0.1.0</name-parser-rust.version>
     <ok-http.version>5.5.1</ok-http.version>
-    <amazon.awssdk.version>2.57.11</amazon.awssdk.version>
     <commons-compress.version>1.28.0</commons-compress.version>
     <commons-io.version>2.22.0</commons-io.version>
-    <springdoc-openapi.version>3.2.0</springdoc-openapi.version>
     <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
 <!-- RabbitMQ overwrite can be removed when Spring Boot updates the version-->
     <rabbit-amqp-client.version>5.37.1</rabbit-amqp-client.version>
@@ -71,14 +68,6 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
     <dependency>
@@ -100,87 +89,20 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.univocity</groupId>
-      <artifactId>univocity-parsers</artifactId>
-      <version>${univocity-parsers.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>name-parser</artifactId>
-      <version>${gbif-name-parser.version}</version>
+      <artifactId>name-parser-api</artifactId>
+      <version>${name-parser-api.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-api</artifactId>
-      <version>${gbif-api.version}</version>
+      <groupId>org.gbif.nameparser</groupId>
+      <artifactId>name-parser-rust</artifactId>
+      <version>${name-parser-rust.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>name-parser-v1</artifactId>
-      <version>${gbif-name-parser-v1.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-parsers</artifactId>
-      <version>${gbif-parsers.version}</version>
-      <exclusions>
-        <!-- only used by MediaParser, we only use RankParser -->
-        <exclusion>
-          <groupId>org.apache.tika</groupId>
-          <artifactId>tika-core</artifactId>
-        </exclusion>
-        <!-- Excluding as it uses old Jackson 2 version        -->
-        <exclusion>
-          <groupId>org.gbif</groupId>
-          <artifactId>gbif-common</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-      <version>${lucene.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-queryparser</artifactId>
-      <version>${lucene.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analysis-common</artifactId>
-      <version>${lucene.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc-openapi.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${commons-io.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>software.amazon.awssdk</groupId>
-      <artifactId>s3</artifactId>
-      <version>${amazon.awssdk.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>software.amazon.awssdk</groupId>
-      <artifactId>s3-transfer-manager</artifactId>
-      <version>${amazon.awssdk.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>software.amazon.awssdk</groupId>
-      <artifactId>aws-crt-client</artifactId>
-      <version>${amazon.awssdk.version}</version>
-    </dependency>
-<!-- Overwrites GBIF's Guava version -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
+      <groupId>org.gbif.nameparser</groupId>
+      <artifactId>name-parser-rust</artifactId>
+      <version>${name-parser-rust.version}</version>
+      <classifier>linux-x86_64</classifier>
     </dependency>
 
     <dependency>

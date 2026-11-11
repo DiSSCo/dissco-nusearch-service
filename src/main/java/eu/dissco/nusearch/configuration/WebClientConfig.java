@@ -1,23 +1,32 @@
 package eu.dissco.nusearch.configuration;
 
+import eu.dissco.nusearch.client.MatchingClient;
+import eu.dissco.nusearch.property.MatchingApiProperties;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.netty.http.client.HttpClient;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @Configuration
+@AllArgsConstructor
 public class WebClientConfig {
 
-  @Bean
-  public WebClient webClient() {
-    return WebClient.builder()
-        .clientConnector(new ReactorClientHttpConnector(HttpClient.create()))
-        .baseUrl("https://api.checklistbank.org/")
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .build();
-  }
+    private final MatchingApiProperties properties;
+
+    @Bean
+    public MatchingClient matchingClient() {
+        // Initialize HTTP client
+        RestClient restClient = RestClient.create(properties.getEndpoint());
+
+        // Create factory for client proxies
+        HttpServiceProxyFactory proxyFactory = HttpServiceProxyFactory.builder()
+                .exchangeAdapter(RestClientAdapter.create(restClient))
+                .build();
+
+        // Create client proxy
+        return proxyFactory.createClient(MatchingClient.class);
+    }
 
 }
