@@ -1,21 +1,26 @@
 package eu.dissco.nusearch.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.gbif.api.vocabulary.Rank.SPECIES;
-import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
-import static org.junit.Assert.assertThrows;
-
 import eu.dissco.nusearch.component.ScientificNameAnalyzer;
 import eu.dissco.nusearch.configuration.LuceneConfiguration;
 import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
 import eu.dissco.nusearch.property.IndexingProperties;
-import java.io.IOException;
+import eu.dissco.nusearch.utils.TestIndexBuilder;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.AlreadyClosedException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.gbif.api.vocabulary.Rank.SPECIES;
+import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class NubIndexIT {
@@ -34,11 +39,18 @@ class NubIndexIT {
     assertThat(result.getClassifications()).hasSize(7);
   }
 
+  @TempDir
+  static Path indexDir;
+  private static IndexingProperties properties;
+
+  @BeforeAll
+  static void buildIndex() throws Exception {
+    // Built once per class from src/test/resources/test.zip (colDP 1011, Fulgoromorpha Lists)
+    properties = TestIndexBuilder.buildIndex(indexDir);
+  }
+
   @BeforeEach
   void setup() throws IOException {
-    var properties = new IndexingProperties();
-    // Index at this location is prefilled and based on colDP 1011, Fulgoromorpha Lists
-    properties.setIndexLocation("src/test/resources/index");
     indexSearcher = new LuceneConfiguration(properties).configureIndexSearcher();
     index = new NubIndex(indexSearcher, analyzer);
   }
@@ -59,7 +71,7 @@ class NubIndexIT {
     // Given
 
     // When
-    var result = index.matchByName("Lamenia vitrea", false, 1).get(0);
+    var result = index.matchByName("Lamenia vitrea", false, 1).getFirst();
 
     // Then
     validateResult(result);
@@ -70,7 +82,7 @@ class NubIndexIT {
     // Given
 
     // When
-    var result = index.matchByName("Lameni vitre", true, 1).get(0);
+    var result = index.matchByName("Lameni vitre", true, 1).getFirst();
 
     // Then
     validateResult(result);
@@ -95,7 +107,7 @@ class NubIndexIT {
 
     // Then
     assertThat(result).hasSize(10);
-    assertThat(result.get(0).getCanonicalName()).isEqualTo("Aafrita");
+    assertThat(result.getFirst().getCanonicalName()).isEqualTo("Aafrita");
   }
 
 

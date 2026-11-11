@@ -1,29 +1,24 @@
 package eu.dissco.nusearch;
 
-import static org.gbif.api.model.checklistbank.NameUsageMatch.MatchType.EXACT;
-import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
-import static org.gbif.api.vocabulary.TaxonomicStatus.SYNONYM;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.dissco.nusearch.domain.ColDpClassification;
-import eu.dissco.nusearch.domain.ColDpNameUsageMatch;
-import eu.dissco.nusearch.domain.ColDpRankedName;
-import eu.dissco.nusearch.domain.ColNameUsageMatch2;
-import eu.dissco.nusearch.domain.Diagnostics;
-import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
-import eu.dissco.nusearch.domain.DigitalSpecimenWrapper;
+import eu.dissco.nusearch.domain.*;
 import eu.dissco.nusearch.schema.DigitalSpecimen;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
 import eu.dissco.nusearch.schema.Identification;
 import eu.dissco.nusearch.schema.TaxonIdentification;
-import java.util.List;
-import java.util.Set;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.util.List;
+import java.util.Set;
+
+import static org.gbif.api.model.checklistbank.NameUsageMatch.MatchType.EXACT;
+import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
+import static org.gbif.api.vocabulary.TaxonomicStatus.SYNONYM;
 
 public class TestUtils {
 
-  public static final ObjectMapper MAPPER = new ObjectMapper();
+  public static final JsonMapper MAPPER = new JsonMapper();
 
   public static final String INSTITUTION_ID = "https://ror.org/02y22ws83";
   public static final String NORMALISED_PHYSICAL_SPECIMEN_ID = "http://coldb.mnhn.fr/catalognumber/mnhn/ec/ec10867";
@@ -332,7 +327,7 @@ public class TestUtils {
         new DigitalSpecimenWrapper(NORMALISED_PHYSICAL_SPECIMEN_ID,
             "https://doi.org/21.T11148/894b1e6cad57e921764e", digitalSpecimen,
             MAPPER.createObjectNode()),
-        List.of(new ObjectMapper().createObjectNode()), false, false);
+        List.of(MAPPER.createObjectNode()), false, false);
   }
 
   private static DigitalSpecimen givenDigitalSpecimen(OdsTopicDiscipline topicDiscipline) {

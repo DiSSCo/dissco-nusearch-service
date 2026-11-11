@@ -1,18 +1,9 @@
 package eu.dissco.nusearch.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.dissco.nusearch.exception.ColAuthenticationException;
 import eu.dissco.nusearch.exception.ColExportRequestException;
 import eu.dissco.nusearch.property.ColDownloadProperties;
 import eu.dissco.nusearch.property.IndexingProperties;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.Base64;
-import java.util.concurrent.ExecutionException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -29,13 +20,23 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Base64;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class ColDpDownloadingService {
 
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
   private final WebClient webClient;
   private final IndexingProperties properties;
   private final ColDownloadProperties colDownloadProperties;
@@ -78,7 +79,7 @@ public class ColDpDownloadingService {
     var requestResult = requestExport(HttpMethod.GET, "/export/" + exportId, null, JsonNode.class,
         true);
     var response = getFutureResponse(requestResult);
-    if (!response.get("status").asText().equals("finished")) {
+    if (!response.get("status").asString().equals("finished")) {
       if (retryCount > colDownloadProperties.getExportStatusRetryCount()) {
         log.error("Checklistbank export is not ready after {} retries. Export ID: {}",
             colDownloadProperties.getExportStatusRetryCount(), exportId);
@@ -95,7 +96,7 @@ public class ColDpDownloadingService {
     } else {
       log.info("Checklistbank successfully created download: {}",
           response.toPrettyString());
-      return response.get("download").asText();
+      return response.get("download").asString();
     }
   }
 
@@ -147,7 +148,7 @@ public class ColDpDownloadingService {
       throws ColExportRequestException, ColAuthenticationException {
     try {
       return response.toFuture().get();
-    } catch (InterruptedException e) {
+    } catch (InterruptedException _) {
       Thread.currentThread().interrupt();
       log.error("Interrupted exception has occurred.");
       throw new ColExportRequestException(

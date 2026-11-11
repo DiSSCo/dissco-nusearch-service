@@ -13,20 +13,10 @@
  */
 package eu.dissco.nusearch.service;
 
-import static org.gbif.api.vocabulary.Rank.FAMILY;
-import static org.gbif.api.vocabulary.Rank.GENUS;
-import static org.gbif.api.vocabulary.Rank.INFRASPECIFIC_NAME;
-import static org.gbif.api.vocabulary.Rank.KINGDOM;
-import static org.gbif.api.vocabulary.Rank.SPECIES;
-import static org.gbif.api.vocabulary.Rank.SPECIES_AGGREGATE;
-import static org.gbif.api.vocabulary.Rank.SUBGENUS;
-import static org.gbif.api.vocabulary.Rank.SUBSPECIES;
-import static org.gbif.api.vocabulary.Rank.UNRANKED;
-import static org.gbif.api.vocabulary.Rank.VARIETY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.gbif.api.vocabulary.Rank;
 import org.junit.jupiter.api.Test;
+
+import static org.gbif.api.vocabulary.Rank.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NubMatchingServiceImplTest {
 
@@ -42,7 +32,7 @@ class NubMatchingServiceImplTest {
     assertEquals(0, NubMatchingService.rankSimilarity(SPECIES, UNRANKED));
     assertEquals(-9, NubMatchingService.rankSimilarity(SUBSPECIES, VARIETY));
     assertEquals(2, NubMatchingService.rankSimilarity(SUBSPECIES, INFRASPECIFIC_NAME));
-    assertEquals(-35, NubMatchingService.rankSimilarity(GENUS, Rank.CLASS));
+    assertEquals(-35, NubMatchingService.rankSimilarity(GENUS, CLASS));
     assertEquals(-35, NubMatchingService.rankSimilarity(GENUS, FAMILY));
     assertEquals(-28, NubMatchingService.rankSimilarity(FAMILY, KINGDOM));
   }

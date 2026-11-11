@@ -13,16 +13,16 @@
  */
 package eu.dissco.nusearch.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DistanceUtilsTest {
 
   final double delta = 0.01d;
 
   @Test
-  void testConvertEditDistanceToSimilarity() throws Exception {
+  void testConvertEditDistanceToSimilarity() {
     assertEquals(100d, DistanceUtils.convertEditDistanceToSimilarity(0, "1234567890", "1234567890"),
         delta);
     assertEquals(67.0d, DistanceUtils.convertEditDistanceToSimilarity(2, "12345678", "12345678"),

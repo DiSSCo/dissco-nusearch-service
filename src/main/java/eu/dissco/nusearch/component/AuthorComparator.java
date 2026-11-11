@@ -25,6 +25,14 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import eu.dissco.nusearch.domain.Equality;
 import eu.dissco.nusearch.utils.YearComparator;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.utils.file.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +40,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.utils.file.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -90,13 +91,12 @@ public class AuthorComparator {
 
   public static AuthorComparator createWithAuthormap() {
     try {
-      AuthorComparator ac = new AuthorComparator(
+      return new AuthorComparator(
           FileUtils.streamToMap(
               Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME))
                   .openStream(),
               Maps.<String, String>newHashMap(), 0, 2, true)
       );
-      return ac;
     } catch (IOException e) {
       throw new RuntimeException("Failed to load author map from classpath", e);
     }

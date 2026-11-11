@@ -13,23 +13,21 @@
  */
 package eu.dissco.nusearch.component;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.google.common.collect.Lists;
 import eu.dissco.nusearch.domain.Equality;
-import java.util.List;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NamePart;
 import org.junit.jupiter.api.Test;
 
-public class AuthorComparatorTest {
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AuthorComparatorTest {
   AuthorComparator comp = AuthorComparator.createWithAuthormap();
 
   @Test
-  public void testNormalize() throws Exception {
+  void testNormalize() {
     assertNull(comp.normalize(null));
     assertNull(comp.normalize(" "));
     assertNull(comp.normalize("."));
@@ -87,7 +85,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testLookup() throws Exception {
+  void testLookup() {
     assertNull(comp.lookup(null));
     assertEquals(" ", comp.lookup(" "));
     assertEquals(".", comp.lookup("."));
@@ -122,7 +120,7 @@ public class AuthorComparatorTest {
 
 
   @Test
-  public void testAuthorParsing() throws Exception {
+  void testAuthorParsing() {
     assertAuthor("l", null, "l");
     assertAuthor("l bolus", "l", "bolus");
     assertAuthor("f k c g s mark", "f k c g s", "mark");
@@ -145,7 +143,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void firstInitialsDiffer() throws Exception {
+  void firstInitialsDiffer() {
     assertTrue(firstInitialsDiffer("a a mark", "a b mark"));
     assertFalse(firstInitialsDiffer("k f mark", "k f mark"));
     assertFalse(firstInitialsDiffer("k f mark", "f k mark"));
@@ -165,7 +163,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testCompareParsedName() throws Exception {
+  void testCompareParsedName() {
     ParsedName p1 = new ParsedName();
     ParsedName p2 = new ParsedName();
 
@@ -239,7 +237,7 @@ public class AuthorComparatorTest {
    * Ignore the sanctioning author
    */
   @Test
-  public void testCompareSanctioning() throws Exception {
+  void testCompareSanctioning() {
     ParsedName p1 = new ParsedName();
     ParsedName p2 = new ParsedName();
 
@@ -257,7 +255,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testCompareUnparsedAuthor() throws Exception {
+  void testCompareUnparsedAuthor() {
     ParsedName p1 = new ParsedName();
     p1.setScientificName("Platanus x hispanica Mill. ex Münch., 1770");
     p1.setGenusOrAbove("Platanus");
@@ -277,7 +275,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testCompare() throws Exception {
+  void testCompare() {
     assertAuth("Quél.", null, Equality.EQUAL, "Quel.", null);
 
     assertAuth("Debreczy & I. Rácz", null, Equality.EQUAL, "Rácz", null);
@@ -358,12 +356,12 @@ public class AuthorComparatorTest {
    * https://github.com/gbif/checklistbank/issues/154
    */
   @Test
-  public void testCompareGenusKeyChange() throws Exception {
+  void testCompareGenusKeyChange() {
     assertAuth("Boie", "1826", Equality.EQUAL, "F.Boie", "1826");
   }
 
   @Test
-  public void testCompareStrict() throws Exception {
+  void testCompareStrict() {
     assertFalse(comp.compareStrict(null, null, null, null));
     assertFalse(comp.compareStrict("", "", "", ""));
     assertFalse(comp.compareStrict("", null, "", null));
@@ -431,7 +429,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testEqualsWithBasionym() throws Exception {
+  void testEqualsWithBasionym() {
     assertAuth("Maxim.", null, "Trautv. ex Maxim.", null, Equality.EQUAL, "Maxim.", null, null, null);
     assertAuth("Maxim.", null, "Trautv. ex Karl Johann Maximowicz", null, Equality.EQUAL, "Max.", null, null, null);
     assertAuth("Maxim.", null, null, null, Equality.EQUAL, "Karl Johann Maximowicz", null, null, null);
@@ -451,7 +449,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testEqualsSubstring() throws Exception {
+  void testEqualsSubstring() {
     ParsedName p1 = new ParsedName();
     ParsedName p2 = new ParsedName();
 
@@ -488,7 +486,7 @@ public class AuthorComparatorTest {
 
 
   @Test
-  public void testBlattariaAuthors() throws Exception {
+  void testBlattariaAuthors() {
     ParsedName p1 = new ParsedName();
     p1.setAuthorship("P. Miller");
     p1.setYear("1754");
@@ -523,7 +521,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testAuthorless() throws Exception {
+  void testAuthorless() {
     ParsedName p1 = new ParsedName();
 
     ParsedName p2 = new ParsedName();
@@ -542,7 +540,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testUnparsedAuthors() throws Exception {
+  void testUnparsedAuthors() {
     ParsedName p3 = new ParsedName();
     p3.setParsed(false);
     p3.setScientificName("Blattaria Voet, ?, 1806");
@@ -560,7 +558,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testAlikeAuthors() throws Exception {
+  void testAlikeAuthors() {
     ParsedName p1 = new ParsedName();
     p1.setAuthorship("Voet");
 
@@ -584,7 +582,7 @@ public class AuthorComparatorTest {
    * see http://dev.gbif.org/issues/browse/PF-2445
    */
   @Test
-  public void testTransliterations() throws Exception {
+  void testTransliterations() {
     ParsedName p1 = new ParsedName();
     p1.setAuthorship("Müller");
 
