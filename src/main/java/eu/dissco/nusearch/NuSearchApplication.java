@@ -9,10 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 public class NuSearchApplication {
 
 	static void main(String[] args) {
-		var context = SpringApplication.run(NuSearchApplication.class, args);
-		if (context.getEnvironment().matchesProfiles(Profiles.S3_INDEXER)) {
-			context.close();
-		}
+		SpringApplication.run(NuSearchApplication.class, args);
 	}
 
 }
