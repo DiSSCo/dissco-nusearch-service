@@ -325,6 +325,27 @@ class DigitalSpecimenMatchingServiceTest {
 	}
 
 	@Test
+	void testHandleMessageWithoutAcceptedUsage() {
+		// Given
+		given(client.getNameMatches(List.of(AA_BREVIS_QUERY)))
+			.willReturn(List.of(givenNameUsageMatch(null, "Plantae")));
+
+		// When
+		service.handleMessages(List.of(givenDigitalSpecimenEvent()));
+
+		// Then
+		then(publisherService).should().sendMessage(eventCaptor.capture());
+		var result = eventCaptor.getValue().digitalSpecimenWrapper().attributes();
+		var taxonIdentification = result.getOdsHasIdentifications().getFirst().getOdsHasTaxonIdentifications().getFirst();
+		assertThat(taxonIdentification.getDwcTaxonID()).isEqualTo(COL_URI + MATCHED_COL_ID);
+		assertThat(taxonIdentification.getDwcScientificName()).isEqualTo("Aa brevis Schltr.");
+		assertThat(taxonIdentification.getDwcTaxonomicStatus()).isEqualTo("SYNONYM");
+		assertThat(result.getOdsHasEntityRelationships()).singleElement()
+			.extracting(EntityRelationship::getDwcRelatedResourceID)
+			.isEqualTo(MATCHED_COL_ID);
+	}
+
+	@Test
 	void testHandleMessagesSplitsLargeBatches() {
 		// Given
 		var events = new ArrayList<DigitalSpecimenEvent>();
