@@ -21,6 +21,10 @@
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
         <!-- RabbitMQ overwrite can be removed when Spring Boot updates the version-->
         <rabbit-amqp-client.version>5.37.1</rabbit-amqp-client.version>
+        <sonar.organization>dissco</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>../app-it/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <repositories>
