@@ -12,22 +12,19 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitMqProperties {
 
-  @Positive
-  private int batchSize = 500;
+	@Positive
+	private int batchSize = 500;
 
-  @NotBlank
-  private String queueName = "nu-search-queue";
+	@Positive
+	private int concurrentConsumers = 1;
 
-  @NotBlank
-  private String dlqExchangeName = "nu-search-exchange-dlq";
+	@NotBlank
+	private String queueName = "nu-search-queue";
 
-  @NotBlank
-  private String dlqRoutingKeyName = "nu-search-dlq";
+	@NotBlank
+	private String exchangeName = "digital-specimen-exchange";
 
-  @NotBlank
-  private String exchangeName = "digital-specimen-exchange";
-
-  @NotNull
-  private String routingKeyName = "digital-specimen";
+	@NotNull
+	private String routingKeyName = "digital-specimen";
 
 }

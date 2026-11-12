@@ -13,28 +13,28 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 public class RabbitMqConfiguration {
 
-  private final MessageCompressionComponent compressedMessageConverter;
-  private final RabbitMqProperties rabbitMqProperties;
+	private final MessageCompressionComponent compressedMessageConverter;
 
-  @Bean
-  public SimpleRabbitListenerContainerFactory consumerBatchContainerFactory(
-      ConnectionFactory connectionFactory) {
-    SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-    factory.setConnectionFactory(connectionFactory);
-    factory.setBatchListener(true);
-    factory.setBatchSize(rabbitMqProperties.getBatchSize());
-    factory.setConsumerBatchEnabled(true);
-    factory.setMessageConverter(compressedMessageConverter);
-    return factory;
-  }
+	private final RabbitMqProperties rabbitMqProperties;
 
-  @Bean
-  public RabbitTemplate compressedTemplate(ConnectionFactory connectionFactory,
-      MessageCompressionComponent compressedMessageConverter) {
-    final RabbitTemplate rabbitTemplate =
-        new RabbitTemplate(connectionFactory);
-    rabbitTemplate.setMessageConverter(compressedMessageConverter);
-    return rabbitTemplate;
-  }
+	@Bean
+	public SimpleRabbitListenerContainerFactory consumerBatchContainerFactory(ConnectionFactory connectionFactory) {
+		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+		factory.setConnectionFactory(connectionFactory);
+		factory.setBatchListener(true);
+		factory.setBatchSize(rabbitMqProperties.getBatchSize());
+		factory.setConsumerBatchEnabled(true);
+		factory.setConcurrentConsumers(rabbitMqProperties.getConcurrentConsumers());
+		factory.setMessageConverter(compressedMessageConverter);
+		return factory;
+	}
+
+	@Bean
+	public RabbitTemplate compressedTemplate(ConnectionFactory connectionFactory,
+			MessageCompressionComponent compressedMessageConverter) {
+		final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+		rabbitTemplate.setMessageConverter(compressedMessageConverter);
+		return rabbitTemplate;
+	}
 
 }
