@@ -22,27 +22,28 @@ import static com.fasterxml.jackson.annotation.JsonSetter.Value;
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
 
-    public static final String DATE_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+	public static final String DATE_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
-    @Bean
-    public JsonMapper jsonMapper() {
-        return JsonMapper.builder()
-                .findAndAddModules()
-                .defaultDateFormat(new SimpleDateFormat(DATE_STRING))
-                .defaultTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC))
-                // To get null lists, maps, and sets as empty collections instead:
-                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_NULL))
-                .withConfigOverride(List.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
-                .withConfigOverride(Map.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
-                .withConfigOverride(Set.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
-                .build();
-    }
+	@Bean
+	public JsonMapper jsonMapper() {
+		return JsonMapper.builder()
+			.findAndAddModules()
+			.defaultDateFormat(new SimpleDateFormat(DATE_STRING))
+			.defaultTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC))
+			// To get null lists, maps, and sets as empty collections instead:
+			.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_NULL))
+			.withConfigOverride(List.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
+			.withConfigOverride(Map.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
+			.withConfigOverride(Set.class, cfg -> cfg.setNullHandling(Value.forValueNulls(Nulls.AS_EMPTY)))
+			.build();
+	}
 
-    // Only used for the year of the matched name. Keep the name-parser-api and
-    // name-parser-rust versions equal to the ones in the matching-ws image, so the
-    // year is the same as GBIF would parse.
-    @Bean
-    public NameParser nameParser() {
-        return new NameParserRust();
-    }
+	// Only used for the year of the matched name. Keep the name-parser-api and
+	// name-parser-rust versions equal to the ones in the matching-ws image, so the
+	// year is the same as GBIF would parse.
+	@Bean
+	public NameParser nameParser() {
+		return new NameParserRust();
+	}
+
 }

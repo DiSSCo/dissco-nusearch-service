@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface MatchingClient {
 
-    @PostExchange("/v2/species/match")
-    List<NameUsageMatch> getNameMatches(@RequestBody List<NameUsageQuery> names);
+	@PostExchange("/v2/species/match")
+	List<NameUsageMatch> getNameMatches(@RequestBody List<NameUsageQuery> names);
+
 }

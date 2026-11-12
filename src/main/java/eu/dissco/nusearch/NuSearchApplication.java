@@ -8,11 +8,11 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan
 public class NuSearchApplication {
 
-  public static void main(String[] args) {
-    var context = SpringApplication.run(NuSearchApplication.class, args);
-    if (context.getEnvironment().matchesProfiles(Profiles.S3_INDEXER)) {
-      context.close();
-    }
-  }
+	static void main(String[] args) {
+		var context = SpringApplication.run(NuSearchApplication.class, args);
+		if (context.getEnvironment().matchesProfiles(Profiles.S3_INDEXER)) {
+			context.close();
+		}
+	}
 
 }
