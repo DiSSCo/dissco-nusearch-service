@@ -1,4 +1,4 @@
-package eu.dissco.nusearch.domain.matching.request;
+package eu.dissco.nusearch.domain.request;
 
 import lombok.Builder;
 import org.gbif.nameparser.api.Rank;

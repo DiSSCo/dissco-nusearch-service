@@ -13,7 +13,7 @@ the Digital Specimen.
 - Only specimens with a biological topic discipline are resolved; geological and
   extraterrestrial specimens are passed on unchanged.
 - For every taxon identification a query is built from the scientific name (or the accepted name
-  usage when the scientific name is empty), authorship, epithets, rank and classification.
+  usage when the scientific name is empty or blank), authorship, epithets, rank and classification.
   All queries of a batch are sent to the matching-ws batch endpoint (`POST /v2/species/match`, at
   most 1000 queries per call).
 - When a match is found, the taxon identification is overwritten with the accepted usage from
@@ -27,10 +27,11 @@ the Digital Specimen.
 
 ## Error handling
 
-Requests to matching-ws are retried up to 3 times (2 seconds apart) on a non-2xx response or an
-I/O error. When that fails, the whole batch fails and RabbitMQ redelivers it; after the delivery
-limit of the queue the broker moves the messages to the dead letter queue (configured on the
-broker, see the deployment repository).
+Requests to matching-ws are retried on a server error (5xx) or an I/O error such as a timeout,
+by default up to 3 times with an increasing delay (2, 4 and 8 seconds). Client errors (4xx, e.g.
+an unknown rank) are not retried. When the request still fails, the whole batch fails and
+RabbitMQ redelivers it; after the delivery limit of the queue the broker moves the messages to the
+dead letter queue (configured on the broker, see the deployment repository).
 
 ## matching-ws
 
@@ -39,12 +40,14 @@ Release:
 
 ```
 docker run --rm -d --name matching-ws -p 8090:8080 \
-  -e JVM_OPTIONS="-Xms1g -Xmx6g -XX:+UseZGC -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -XX:+UnlockExperimentalVMOptions" \
+  --memory=4g \
+  -e JVM_OPTIONS="-Xms1g -Xmx2560m -XX:+UseZGC -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -XX:+UnlockExperimentalVMOptions" \
   docker.gbif.org/matching-ws:xcol-amd64-316691-20261103-114436
 ```
 
 Pin the image tag: the tag determines the COL release (and therefore the taxon keys).
-Plan at least 8 GB of memory for the matching-ws container.
+4 GB of memory for the matching-ws container is enough with `-Xmx2560m` (tested with 8 parallel
+batches of 500 queries: peak 2.9 GB).
 
 ## Properties
 
@@ -53,6 +56,8 @@ Plan at least 8 GB of memory for the matching-ws container.
 matching-api.endpoint=# Base URL of matching-ws, e.g. http://localhost:8090 (required)
 matching-api.time-out-in-sec=# Read timeout for a matching request. Default 60
 matching-api.connect-time-out-in-sec=# Connect timeout. Default 5
+matching-api.max-retries=# Retries on a 5xx or I/O error. Default 3
+matching-api.retry-delay-in-sec=# Delay before the first retry, doubled for each next retry. Default 2
 
 # RabbitMQ
 spring.rabbitmq.host=# The RabbitMQ host

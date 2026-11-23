@@ -2,8 +2,8 @@ package eu.dissco.nusearch.service;
 
 import eu.dissco.nusearch.client.MatchingClient;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
-import eu.dissco.nusearch.domain.matching.request.ClassificationQuery;
-import eu.dissco.nusearch.domain.matching.request.NameUsageQuery;
+import eu.dissco.nusearch.domain.request.ClassificationQuery;
+import eu.dissco.nusearch.domain.request.NameUsageQuery;
 import eu.dissco.nusearch.property.ApplicationProperties;
 import eu.dissco.nusearch.schema.*;
 import eu.dissco.nusearch.schema.DigitalSpecimen.OdsTopicDiscipline;
@@ -37,7 +37,7 @@ import static eu.dissco.nusearch.TestUtils.*;
 import static eu.dissco.nusearch.schema.Agent.Type.SCHEMA_SOFTWARE_APPLICATION;
 import static eu.dissco.nusearch.schema.Identifier.OdsGupriLevel.GLOBALLY_UNIQUE_STABLE_PERSISTENT_RESOLVABLE_FDO_COMPLIANT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
@@ -309,10 +309,10 @@ class DigitalSpecimenMatchingServiceTest {
 	@Test
 	void testHandleMessageExistingColId() {
 		// Given
+		var existingRelationship = new EntityRelationship().withDwcRelationshipOfResource("hasCOLID")
+			.withDwcRelatedResourceID(ACCEPTED_COL_ID);
 		var specimen = givenDigitalSpecimen(OdsTopicDiscipline.BOTANY);
-		specimen.setOdsHasEntityRelationships(
-				new ArrayList<>(List.of(new EntityRelationship().withDwcRelationshipOfResource("hasCOLID")
-					.withDwcRelatedResourceID(ACCEPTED_COL_ID))));
+		specimen.setOdsHasEntityRelationships(List.of(existingRelationship));
 		given(client.getNameMatches(List.of(AA_BREVIS_QUERY))).willReturn(List.of(givenNameUsageMatch()));
 
 		// When
@@ -320,8 +320,11 @@ class DigitalSpecimenMatchingServiceTest {
 
 		// Then
 		then(publisherService).should().sendMessage(eventCaptor.capture());
-		assertThat(eventCaptor.getValue().digitalSpecimenWrapper().attributes().getOdsHasEntityRelationships())
-			.hasSize(1);
+		var result = eventCaptor.getValue().digitalSpecimenWrapper().attributes();
+		assertThat(result.getOdsHasEntityRelationships()).containsExactly(existingRelationship);
+		assertThat(
+				result.getOdsHasIdentifications().getFirst().getOdsHasTaxonIdentifications().getFirst().getDwcTaxonID())
+			.isEqualTo(COL_URI + ACCEPTED_COL_ID);
 	}
 
 	@Test
@@ -336,7 +339,10 @@ class DigitalSpecimenMatchingServiceTest {
 		// Then
 		then(publisherService).should().sendMessage(eventCaptor.capture());
 		var result = eventCaptor.getValue().digitalSpecimenWrapper().attributes();
-		var taxonIdentification = result.getOdsHasIdentifications().getFirst().getOdsHasTaxonIdentifications().getFirst();
+		var taxonIdentification = result.getOdsHasIdentifications()
+			.getFirst()
+			.getOdsHasTaxonIdentifications()
+			.getFirst();
 		assertThat(taxonIdentification.getDwcTaxonID()).isEqualTo(COL_URI + MATCHED_COL_ID);
 		assertThat(taxonIdentification.getDwcScientificName()).isEqualTo("Aa brevis Schltr.");
 		assertThat(taxonIdentification.getDwcTaxonomicStatus()).isEqualTo("SYNONYM");
@@ -376,7 +382,7 @@ class DigitalSpecimenMatchingServiceTest {
 		var events = List.of(givenDigitalSpecimenEvent());
 
 		// When / Then
-		assertThatThrownBy(() -> service.handleMessages(events)).isInstanceOf(IllegalStateException.class);
+		assertThrows(IllegalStateException.class, () -> service.handleMessages(events));
 		then(publisherService).shouldHaveNoInteractions();
 	}
 

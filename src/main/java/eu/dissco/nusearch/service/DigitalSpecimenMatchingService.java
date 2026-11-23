@@ -2,8 +2,8 @@ package eu.dissco.nusearch.service;
 
 import eu.dissco.nusearch.client.MatchingClient;
 import eu.dissco.nusearch.domain.DigitalSpecimenEvent;
-import eu.dissco.nusearch.domain.matching.request.ClassificationQuery;
-import eu.dissco.nusearch.domain.matching.request.NameUsageQuery;
+import eu.dissco.nusearch.domain.request.ClassificationQuery;
+import eu.dissco.nusearch.domain.request.NameUsageQuery;
 import eu.dissco.nusearch.domain.response.MatchType;
 import eu.dissco.nusearch.domain.response.NameUsageMatch;
 import eu.dissco.nusearch.domain.response.RankedName;
@@ -62,22 +62,22 @@ public class DigitalSpecimenMatchingService {
 
 	private final ApplicationProperties properties;
 
-	private static void mapTaxonIdentification(DigitalSpecimenEvent event, TaxonIdentification taxonIdentification,
-			StringBuilder verbatimIdentification, List<PendingMatch> pendingMatches) {
+	private static PendingMatch mapTaxonIdentification(DigitalSpecimenEvent event,
+			TaxonIdentification taxonIdentification, StringBuilder verbatimIdentification) {
 		log.debug("Handling taxon identification: {}", taxonIdentification);
 		var specimenName = taxonIdentification.getDwcScientificName();
-		if (specimenName == null || specimenName.isEmpty()) {
+		if (specimenName == null || specimenName.isBlank()) {
 			specimenName = taxonIdentification.getDwcAcceptedNameUsage();
 		}
 		if (specimenName == null || specimenName.isBlank()) {
 			log.debug("No name to match in taxon identification: {}", taxonIdentification);
-			return;
+			return null;
 		}
 		if (!verbatimIdentification.isEmpty()) {
 			verbatimIdentification.append(" | ");
 		}
 		verbatimIdentification.append(specimenName);
-		pendingMatches.add(new PendingMatch(event, taxonIdentification, toQuery(taxonIdentification, specimenName)));
+		return new PendingMatch(event, taxonIdentification, toQuery(taxonIdentification, specimenName));
 	}
 
 	private static NameUsageQuery toQuery(TaxonIdentification taxonIdentification, String specimenName) {
@@ -88,10 +88,19 @@ public class DigitalSpecimenMatchingService {
 			.specificEpithet(taxonIdentification.getDwcSpecificEpithet())
 			.infraSpecificEpithet(taxonIdentification.getDwcInfraspecificEpithet())
 			.rank(parseRank(taxonIdentification.getDwcTaxonRank()))
-			.classification(new ClassificationQuery(taxonIdentification.getDwcKingdom(),
-					taxonIdentification.getDwcPhylum(), taxonIdentification.getDwcClass(),
-					taxonIdentification.getDwcOrder(), null, taxonIdentification.getDwcFamily(), null, null, null,
-					taxonIdentification.getDwcGenus(), taxonIdentification.getDwcSubgenus(), null))
+			.classification(ClassificationQuery.builder()
+				.kingdom(taxonIdentification.getDwcKingdom())
+				.phylum(taxonIdentification.getDwcPhylum())
+				.clazz(taxonIdentification.getDwcClass())
+				.order(taxonIdentification.getDwcOrder())
+				.superfamily(taxonIdentification.getDwcSuperfamily())
+				.family(taxonIdentification.getDwcFamily())
+				.subfamily(taxonIdentification.getDwcSubfamily())
+				.tribe(taxonIdentification.getDwcTribe())
+				.subtribe(taxonIdentification.getDwcSubtribe())
+				.genus(taxonIdentification.getDwcGenus())
+				.subgenus(taxonIdentification.getDwcSubgenus())
+				.build())
 			.strict(false)
 			.verbose(false)
 			.build();
@@ -280,15 +289,15 @@ public class DigitalSpecimenMatchingService {
 		}
 		for (var identification : identifications) {
 			var taxonIdentifications = identification.getOdsHasTaxonIdentifications();
-			if (taxonIdentifications == null) {
-				continue;
-			}
-			var verbatimIdentification = new StringBuilder();
-			for (var taxonIdentification : taxonIdentifications) {
-				mapTaxonIdentification(event, taxonIdentification, verbatimIdentification, pendingMatches);
-			}
-			if (!verbatimIdentification.isEmpty()) {
-				identification.setDwcVerbatimIdentification(verbatimIdentification.toString());
+			if (taxonIdentifications != null) {
+				var verbatimIdentification = new StringBuilder();
+				taxonIdentifications.stream()
+					.map(ti -> mapTaxonIdentification(event, ti, verbatimIdentification))
+					.filter(Objects::nonNull)
+					.forEach(pendingMatches::add);
+				if (!verbatimIdentification.isEmpty()) {
+					identification.setDwcVerbatimIdentification(verbatimIdentification.toString());
+				}
 			}
 		}
 		return pendingMatches;
