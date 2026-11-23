@@ -20,7 +20,7 @@ public interface MatchingClient {
 	 */
 	@Retryable(includes = { HttpServerErrorException.class, ResourceAccessException.class },
 			maxRetriesString = "${matching-api.max-retries:3}", delayString = "${matching-api.retry-delay-in-sec:2}",
-			timeUnit = TimeUnit.SECONDS, multiplier = 2)
+			timeUnit = TimeUnit.SECONDS, multiplier = 2, maxDelay = 30)
 	@PostExchange("/v2/species/match")
 	List<NameUsageMatch> getNameMatches(@RequestBody List<NameUsageQuery> names);
 
